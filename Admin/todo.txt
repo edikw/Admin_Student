@@ -1,0 +1,87 @@
+ADMIN TODO
+==================================================================
+
+TODO THIS WEEK!!!
+-------------------------------
+- Change dummie data to local storage (done)
+- Make functions edit, delete button skill (done)
+- Testing function skill (done)
+- Make functions edit, delete button character (done) ---- delete (done), edit (done)
+- Testing function character (done)
+- Syncronize student data to skill, character data (done)
+- Testing function student (done), delete(done), habis edit renderan character hilang (done), selectedMajor isnot work while editing (done)
+- Connecting with the Backend (work in process)
+
+
+TODO CONNECT WITH THE BACKEND
+--------------------------------
++ APP
+- Get all data before render app (done)
+- Remove dummie data/localstorage (wip)
+
++ ABOUT
+- POST data About to the backend (no need)
+- PUT data About to the backend (done)
+- DELETE data About to the backend (no need)
+- RENDER data About (done)
+
++ FOUNDER
+- POST data Founder to the backend (no need)
+- PUT data Founder to the backend (done)
+- DELETE data Founder to the backend (no need)
+- RENDER data Founder (done)
+
++ SKILL
+- POST data Skill to the backend (done), cant post same data at different major or id was used
+- PUT data Skill to the backend (done)
+- DELETE data Skill to the backend (done)
+- RENDER data Skill (done)
+
++ CHARACTER
+- POST data Character to the backend (done)
+- PUT data Character to the backend (done)
+- DELETE data Character to the backend (done)
+- RENDER data Character (done)
+
++ STUDENT
+- GET data skill based from Major (done)
+- GET data character from backend (done)
+- POST data Student to the backend (done)
+- PUT data Student to the backend (done)
+- DELETE data Student to the backend (done)
+- RENDER data Student (done)
+
++ OURWORK
+---------------------------------------------
+- GET data ourwork from backend (done)
+- POST data ourwork from backend (done)
+- PUT data ourwork from backend (done)
+- DELETE data ourwork from backend (done)
+- RENDER data ourwork from backend (done)
+
+--------------------------------------------
+GRAFIK MAJORS
+- Grafik by data of Major (done) 
+
+--------------------------------------------
+UPLOAD PICTURE TO BACKEND: 
+- About (not yet)
+- Founder (not yet)
+- Student (not yet)
+- Ourwork (not yet)
+
+---------------------------------------------
+LOGIN BACKEND:
+- Auth (wip)
+- Token (wip)
+
+---------------------------------------------
+- TESTING!!!!!!!! (later)
+- - Bug: app.students.student tidak ada skill dan character
+
+
+ASYNC PROBLEM (URGENT NOW)
+---------------------------------------------
+- after klik edit button, skill.name dan char.name tidak terender / tidak singkron objectnya
+
+

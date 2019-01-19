@@ -1,0 +1,44 @@
+BACKEND
+
+
+===ROUTER STUDENT===
+GET http://192.168.2.231:8000/v1/student
+GET http://192.168.2.231:8000/v1/student/id
+POST http://192.168.2.231:8000/v1/student/create
+PUT http://192.168.2.231:8000/v1/student/update/id
+DELETE http://192.168.2.231:8000/v1/student/delete/id
+
+===ROUTER MAJOR===
+GET http://192.168.2.231:8000/v1/major
+GET http://192.168.2.231:8000/v1/major/id
+POST http://192.168.2.231:8000/v1/major/create
+PUT http://192.168.2.231:8000/v1/major/update/id
+DELETE http://192.168.2.231:8000/v1/major/delete/id
+
+===ROUTER SKILL===
+GET http://192.168.2.231:8000/v1/skill
+GET http://192.168.2.231:8000/v1/skill/id
+POST http://192.168.2.231:8000/v1/skill/create
+PUT http://192.168.2.231:8000/v1/skill/update/id
+DELETE http://192.168.2.231:8000/v1/skill/delete/id
+
+===ROUTER CHARACTER===
+GET http://192.168.2.231:8000/v1/character
+GET http://192.168.2.231:8000/v1/character/id
+POST http://192.168.2.231:8000/v1/character/create
+PUT http://192.168.2.231:8000/v1/character/update/id
+DELETE http://192.168.2.231:8000/v1/character/delete/id
+
+===ROUTER ABOUT===
+GET http://192.168.2.231:8000/v1/about
+GET http://192.168.2.231:8000/v1/about/id
+POST http://192.168.2.231:8000/v1/about/create
+PUT http://192.168.2.231:8000/v1/about/update/id
+DELETE http://192.168.2.231:8000/v1/about/delete/id
+
+===ROUTER FOUNDER===
+GET http://192.168.2.231:8000/v1/about
+GET http://192.168.2.231:8000/v1/about/id
+POST http://192.168.2.231:8000/v1/about/create
+PUT http://192.168.2.231:8000/v1/about/update/id
+DELETE http://192.168.2.231:8000/v1/about/delete/id
