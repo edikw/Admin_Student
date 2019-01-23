@@ -46,7 +46,7 @@
 			});
 
 			this.$root.$on('edit-skill', function(data) {
-				// console.log('EDIT SKILL: ',data)
+				console.log('EDIT SKILL: ',data)
 				self.page = 'editItem';
 				self.pageDetail = 'skill';
 				self.isAdding = true;
@@ -81,8 +81,6 @@
 				this.isAdding = false;
 				var target;
 
-				// console.log('INPUTED ITEM: ', this.inputedItem)
-
 				// check lagi di halaman apa
 				if(this.page == 'char'){
 					target = 'add-character';
@@ -95,7 +93,6 @@
 				this.inputedItem = null;
 			},
 			editingItem() {
-				// console.log('EDIT ITEM')
 				var target;
 
 				if (this.page == 'editItem' && this.pageDetail == 'skill') {
@@ -139,13 +136,14 @@
 		border: 1px solid #ccc;
 	}
 	.add-skill button {
-		display: block;
 		font-size: 0.9em;
-		border-radius: 5px;
-		border: 1px solid #ccc;
-		background-color: transparent;
+		border-radius: 3px;
+		border: 1px solid #c41e30;
+		background-color: #c41e30;
 		padding: 5px 10px;
 		margin: auto;
+		color: #fff;
 		margin-top: .5rem;
+		/*width: 30%;*/
 	}
 </style>

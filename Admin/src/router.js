@@ -3,11 +3,11 @@ import Router from 'vue-router'
 import Login from './views/Login.vue'
 import About from './views/About.vue'
 import Dashboad from './views/Dashboard.vue'
-import Ourworks from './views/Ourworks.vue'
 import Student from './views/Student.vue'
 import Skill from './views/Skill.vue'
 import Character from './views/Character.vue'
 import EditStudent from './views/EditStudent.vue'
+import Ourworks from './views/ourwork2.vue'
 
 Vue.use(Router)
 

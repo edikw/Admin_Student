@@ -87,27 +87,22 @@
 				</div>
 			</div>
 
-			<div class="skill-desc">
+			<!-- <div class="skill-desc">
 				<div class="edit-skill">
 					<div class="container">
 						<span>SKILL</span>
-						<!-- SKILL LOOPING -->
-						<div class="skill-container" v-for="(skill,key) in selectedList">
-								<div class="skill">
-									<ul>
-										<li><span></span>{{skill}}</li>
-									</ul>
-								</div>
-								<div class="edit">
-									<input type="text" :key="key" v-model="inputValueSkill" placeholder="0">
-								</div>
-							
+						<div class="skill-container" >
+							<div class="skill" v-for="(skill,key) in selectedList">
+								<ul>
+									<li><span></span>{{skill}}</li>
+								</ul>
+							</div>
+							<div class="edit">
+								<input type="text" :key="key" v-model="inputValueSkill" placeholder="0">
+							</div>
 						</div>
-
-						<!-- CHARACTER MANUAL				 -->
 						<span>CHARACTER</span>
-						
-						<!-- CHARACTER LOOPING -->
+
 						<div class="skill-container" v-for="char in storedChar">
 							<div class="skill">
 								<ul>
@@ -121,7 +116,8 @@
 
 					</div>
 				</div>
-			</div>
+			</div> -->
+
 			<div class="submit-button" v-show="!edit">
 				<button v-on:click="sendForm()">SUBMIT</button>
 			</div>
@@ -135,17 +131,9 @@
 <script>
 
 	import sweetalert from 'sweetalert';
-	// import AddSkill from './AddSkill';
-	// import AddCharacter from './AddCharacter';
-	// import SkillDesc from '../components/SkillDesc';
 
 	export default {
 		props: ['student'],
-		components: {
-			// SkillDesc,
-			// AddSkill,
-			// AddCharacter
-		},
 		data() {
 			return {
 				listNum: 1,
@@ -204,12 +192,12 @@
 			var self = this;
 
 			// GET CHARS
-			this.storedChar = JSON.parse(localStorage.getItem("dataCharacters"));
-			console.log('DATA CHAR: ', this.storedChar);
+			// this.storedChar = JSON.parse(localStorage.getItem("dataCharacters"));
+			// console.log('DATA CHAR: ', this.storedChar);
 
 			// GET SKILLS
-			this.storedSkill = JSON.parse(localStorage.getItem("dataSkills"));
-			console.log('DATA SKILL: ', this.storedSkill);
+			// this.storedSkill = JSON.parse(localStorage.getItem("dataSkills"));
+			// console.log('DATA SKILL: ', this.storedSkill);
 
 			this.$root.$on('show-edit', function(data) {
 				console.log('from show edit: ', data);

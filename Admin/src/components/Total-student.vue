@@ -59,12 +59,10 @@
 			function getData() {
 				Vue.axios.get(self.url.student).then((response) => {
 				  self.dataStudents = response.data;
-				  console.log('DATA STUDENT: ', self.dataStudents)
 				});
 
 				setTimeout(function countStudent() {
 					self.dataStudents.map(std => {
-						console.log('STD: ', std)
 						if (std) {
 							if (std.status == 'Graduated') {
 								self.graduateds++;
@@ -74,7 +72,6 @@
 							}
 						}
 					});
-				console.log('SEMUA: ', self.dataStudents)
 				self.total = self.dataStudents.length;
 				}, 300);
 			};

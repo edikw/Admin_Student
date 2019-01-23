@@ -42,7 +42,7 @@
 				websiteText: '',
 				isCreating: false,
 				key: 0,
-				url: App.data().url,
+				url: App.data().url_ourwork,
 			}
 		},
 		mounted() {
@@ -52,9 +52,6 @@
 		methods: {
 			openForm() {
 				this.isCreating = true;
-				// window.scrollTo(0, document.querySelector(".projects").scrollHeight);
-				// window.scrollTo(0, document.body.scrollHeight);
-				window.scrollTo(0, window.screen.height + 100);
 			},
 			closeForm() {
 				this.isCreating = false;
@@ -72,38 +69,19 @@
 					var ourworks = [];
 					var ourwork = {
 						title: title,
-						categori: categori,
-						website: website,
-						num: num
+						category: categori,
+						url_website: website,
+						file: this.addWork
+						// num: num
 					}
 
-					var stored;
-					stored = JSON.parse(localStorage.getItem('dataOurworks'));
+					console.log("DATA YANG DI POST", ourwork)
 
-					// stored.push(ourwork);
-
-					localStorage.setItem('dataOurworks', JSON.stringify(stored));
-					console.log('ourwork dikirim ke local: ', stored);
-
-					this.$root.$emit('add-work', stored);
-
-
-					// SAVE DATA BACKEND 
-					// const title = this.titleText;
-					const category = this.categoriText;
-					const url_website = this.websiteText;
-					const file = '';
-
-					var ourwork = {
-						title: title,
-						category: category,
-						url_website: url_website,
-						file: file
-					}
-					this.$root.$emit('adding-work', {
-						url: this.url.ourwork + '/create',
-						data: ourwork
-					});
+					axios.post(this.url.post_text, ourwork).then(res => {
+							if(res.status == 200){
+								window.location.reload();
+							}
+					})
 
 					this.reset();
 
@@ -121,15 +99,24 @@
 				document.getElementById("workIMG").click()
 			},
 			onFilePicked(event) {
-				const files = event.target.files;
-				const fileReader = new FileReader()
-				fileReader.onload = (e) => {
-					this.addWork = e.target.result
-				}
-				fileReader.readAsDataURL(files[0])
-				this.image = files[0]
 
-				console.log(event.target.result)
+				var self = this
+
+				const image = event.target.files[0];
+
+				let data = new FormData();
+				data.append('file', image);
+
+				let request = new XMLHttpRequest();
+				request.open('POST', this.url.post_file);
+				request.send(data);
+				request.onreadystatechange = function () {
+					if(request.readyState === 4 && request.status === 200) {
+						var res = JSON.parse(request.responseText);
+						console.log('RES POST IMAGE', res);
+						self.addWork = res.url
+					}
+				}
 			}
 		}
 	}
@@ -143,6 +130,9 @@
 	}
 	.projects {
 		width: 100%;
+		/*padding-top: 20px;*/
+		padding-bottom:20px;
+		text-align: left;
 	}
 	.projects input[type=file] {
 		display: none;
@@ -150,11 +140,13 @@
 	.projects .project {
 		width: 100%;
 		display: inline-block;
-		text-align: left;
+		text-align: center;
+		padding-top: 25px;
+		padding-bottom: 25px;
 	}
 	.projects .project img {
-		width: 55%;
-		border-radius: 15px;
+		width: 35%;
+		border-radius: 15px; 
 	}
 	.projects .project .work-wrapper-edit {
 		text-align: left;
@@ -169,15 +161,21 @@
 	.projects .project .work-wrapper-edit .input-work input {
 		padding: 5px;
 		margin-bottom: 5px;
-		border-radius: 10px;
+		border-radius: 5px;
 		border: 1px solid #ccc;
+		display: block;
+		width: 100%;
 	}
 	.projects .project .work-wrapper-edit .button-add button {
-		margin: 0 5px;
+		margin: 0;
 		padding: 5px;
-		border-radius: 10px;
+		border-radius: 5px;
 		border: 1px solid #ccc;
 		background-color: #c41e30;
 		color: #fff;
+		width: 25%;
+	}
+	.projects .project .work-wrapper-edit .input-work label {
+		display: inline-block;
 	}
 </style>

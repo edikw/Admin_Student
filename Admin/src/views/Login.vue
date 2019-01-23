@@ -10,15 +10,15 @@
 				<div class="label">
 					<label><img src="../assets/logo/name.png">
 					Name</label><br>
-					<input v-model="input.name" type="text" name="name" placeholder="Name"><br>
+					<input v-model="name" type="text" placeholder="Name" autocomplete="off"><br>
 				</div>
 				<div class="label">
 					<label><img src="../assets/logo/password.png">
 					Password</label><br>
-					<input v-model="input.password" type="password" name="password" placeholder="Password"><br>
+					<input v-model="password" type="password" placeholder="Password" autocomplete="off"><br>
 				</div>
 				<div class="btn">
-					<button type="button" v-on:click="login()">Login</button>
+					<button type="button" v-on:click="login">Login</button>
 				</div>
 			</div>
 		</div>
@@ -58,21 +58,14 @@ import main from '../main.js'
 		name: 'Login',
 		data() {
 			return {
-				input: {
-					name: "admin",
-					password: "tanyaadmin"
-				},
-				url_login: 'http://192.168.2.231:8000/login/',
+				name: '',
+				password: '',
+				url_login: 'http://192.168.2.231:8000/login',
 				dataLogin: null
 			}
 		},
 		mounted() {
 			console.log('di login: ',router.app)
-
-			// Vue.axios.get(this.url_login).then((response) => {
-			//   console.log('get login: ', response.data)
-			//   this.dataLogin = response.data;
-			// });
 		},
 		methods: {
 			login() {
@@ -87,25 +80,30 @@ import main from '../main.js'
 		        };
 
 		        this.dataLogin = {
-		        	username: this.input.name,
-		        	password: this.input.password
+		        	username: this.name,
+		        	password: this.password
 		        }
+
+		        console.log("data yang dikirim", this.dataLogin)
 
 				Vue.axios.post(this.url_login, this.dataLogin, params).then((response) => {
 
 				  if (response.status === 200) {
+					  console.log('response login: ', response.data)
+					  
 					  var token = response.data.api_token;
-					  console.log('get login: ', response.data)
 
 					  localStorage.setItem('api_token', token);
 					  console.log(localStorage.getItem('api_token'));
 
-					  // main.methods().renderApp();
-					this.$router.replace({name: "Dashboard"});
+					  if(localStorage.getItem('api_token')){
+						  this.$router.push('/dashboard');
+					  }
 				  } else {
 				  	throw new Error('Error!');
 				  }
 				}).catch(e => {
+				  	alert('Nama atau Password Anda Salah. Silahkan Coba Lagi');
 					console.log('Error: ', e.response);
 				});
 

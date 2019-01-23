@@ -33,25 +33,41 @@ Vue.use(VueAxios, axios);
     data() {
       return {
         url: {
+          root: 'http://192.168.2.231:8000/',
           base: 'http://192.168.2.231:8000/v1/',
           about: 'http://192.168.2.231:8000/v1/about',
+          aboutImg: 'http://192.168.2.231:8000/v1/about/updatefile/1',
           founder: 'http://192.168.2.231:8000/v1/founder',
+          founderImg: 'http://192.168.2.231:8000/v1/founder/updatefile/1',
           skill: 'http://192.168.2.231:8000/v1/skill',
+          skill_post: 'http://192.168.2.231:8000/v1/skill/create',
+          skill_update: 'http://192.168.2.231:8000/v1/skill/update/',
           character: 'http://192.168.2.231:8000/v1/character',
           student: 'http://192.168.2.231:8000/v1/student',
           ourwork: 'http://192.168.2.231:8000/v1/ourwork'
+
         },
         url_student: {
           get_student: 'http://192.168.2.231:8000/v1/student',
           post_student: 'http://192.168.2.231:8000/v1/student/create',
           put_student: 'http://192.168.2.231:8000/v1/student/update/', //+id
-          delete_student: 'http://192.168.2.231:8000/v1/student/delete/'//+id
+          delete_student: 'http://192.168.2.231:8000/v1/student/delete/',//+id
+          profile_student: 'http://192.168.2.231:8000/v1/student/postfile',
+          profile_student_update: 'http://192.168.2.231:8000/v1/student/updatefile/'
         },
         url_major: {
           get_major: 'http://192.168.2.231:8000/v1/major',
           post_major: 'http://192.168.2.231:8000/v1/major/create',
           put_major: 'http://192.168.2.231:8000/v1/major/update/', //+id
           delete_major: 'http://192.168.2.231:8000/v1/major/delete/'//+id
+        },
+        url_ourwork: {
+          post_file: 'http://192.168.2.231:8000/v1/ourwork/postfile',
+          update_file: 'http://192.168.2.231:8000/v1/ourwork/updatefile/',
+          update_text: 'http://192.168.2.231:8000/v1/ourwork/update/',
+          get_ourwork: 'http://192.168.2.231:8000/v1/ourwork',
+          delete_ourwork: 'http://192.168.2.231:8000/v1/ourwork/delete/',
+          post_text: 'http://192.168.2.231:8000/v1/ourwork/create'
         },
         authenticated: false,
         mockAccount: {
@@ -93,6 +109,8 @@ Vue.use(VueAxios, axios);
         };
 
         var current = this.$router.history.current.name;
+        console.log("CURERENT PAGE", current);
+
         if(!localStorage.getItem('api_token')){
           this.authenticated = false;
           this.$router.replace({name: "Login"});

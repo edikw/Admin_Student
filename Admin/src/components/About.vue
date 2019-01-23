@@ -47,7 +47,7 @@ Vue.use(VueAxios, axios);
 				ID: 1,
 				user: {
 					about: 'Does University adalah sekolah bakat yang hanya mengajarkan apa yang para siswanya suka. Sistem pembelajaran pun dilakukan dengan metode karantina agar mimpi mereka tetap terjaga.Berdiri sejak 15 Desember 2016 dengan jumlah 10 siswa. Kini Does University telah menerima 5 generasi siswa yang terdiri dari jurusan Animasi 3D, 3D Modelling, Video Compositing, dan Programming. Dengan total lebih dari 110 siswa yang berasal dari hampir seluruh daerah di Indonesia.',
-					urlImage: require('../assets/logo/gallery_grey.png')
+					urlImage: ''
 				},
 				editField: '',
 				description: 'Does University adalah sekolah bakat yang hanya mengajarkan apa yang para siswanya suka. Sistem pembelajaran pun dilakukan dengan metode karantina agar mimpi mereka tetap terjaga.Berdiri sejak 15 Desember 2016 dengan jumlah 10 siswa. Kini Does University telah menerima 5 generasi siswa yang terdiri dari jurusan Animasi 3D, 3D Modelling, Video Compositing, dan Programming. Dengan total lebih dari 110 siswa yang berasal dari hampir seluruh daerah di Indonesia.',
@@ -60,32 +60,23 @@ Vue.use(VueAxios, axios);
 		mounted(){
 			var self = this;
 
-			window.onload = (function(){
-				getData();
-			})();
+			this.getData();
 			// GET DATA ABOUT FROM BACKEND 
-			function getData() {
-				Vue.axios.get(self.url.about).then((response) => {
-				  self.dataAbout = response.data;
-				  console.log('DATA ABOUT: ', self.dataAbout)
-				});
+			
 				// HANDLE ASYNC BACKUP
-				setTimeout(function getBackup() {
-					if (!self.dataAbout) {
-						self.textAbout = self.description;
+			setTimeout(function getBackup() {
+				if (!self.dataAbout) {
+					self.textAbout = self.description;
+				} else {
+					if(self.dataAbout[0]){
+						self.textAbout = self.dataAbout[0].description;
+						console.log('ABOUT ONO!!', self.textAbout)
+					}else{
 						console.log('ABOUT RAONO!!')
-					} else {
-						if(self.dataAbout[0]){
-							self.textAbout = self.dataAbout[0].description;
-							console.log('ABOUT ONO!!', self.textAbout)
-						}else{
-							console.log('ABOUT RAONO!!')
-							self.textAbout = self.description;
+						self.textAbout = self.description;
 						}
 					}
 				}, 200);
-			};
-			
 
 			// GET LOCAL STORAGE
 			if(localStorage.getItem('dataAbout')){
@@ -93,6 +84,19 @@ Vue.use(VueAxios, axios);
 			};
 		},
 		methods: {
+			getData() {
+				Vue.axios.get(this.url.about).then((response) => {
+					this.dataAbout = response.data;
+					console.log("APAPA", this.dataAbout)
+
+					this.dataAbout.map(data=> {
+
+						this.user.urlImage = 'http://192.168.2.231:8000/' + data.file;
+				  	
+					})
+				});
+			},
+
 			focusField(about) {
 				this.editField = about;
 			},
@@ -106,15 +110,31 @@ Vue.use(VueAxios, axios);
 				document.getElementById("aboutIMG").click()
 			},
 			onFilePicked(event) {
-				const files = event.target.files;
-				const fileReader = new FileReader()
-				fileReader.onload = (e) => {
-					this.user.urlImage = e.target.result
-				}
-				fileReader.readAsDataURL(files[0])
-				this.image = files[0]
+				var self = this;
+				// const files = event.target.files;
+				// const fileReader = new FileReader()
+				// fileReader.onload = (e) => {
+				// 	this.user.urlImage = e.target.result
+				// }
+				// fileReader.readAsDataURL(files[0])
+				// this.image = files[0]
 
-				console.log(event.target.result)
+				// console.log(event.target.result)
+
+				const image = event.target.files[0];
+
+				let data = new FormData();
+				data.append('file', image);
+
+				let request = new XMLHttpRequest();
+				request.open('POST', this.url.aboutImg);
+				request.send(data);
+				request.onreadystatechange = function () {
+					if(request.readyState === 4 && request.status === 200) {
+						var res = JSON.parse(request.responseText);
+						self.user.urlImage = res.url
+					}
+				}
 			},
 			postAbout(){
 				// LOCALSTORAGEE

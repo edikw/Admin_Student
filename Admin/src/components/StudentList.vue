@@ -21,7 +21,7 @@
 
 				<tbody>
 					<template v-for="(student, key) in students">
-						<tr v-if="student" v-on:click="showStudent(student)">
+						<tr v-if="student">
 							<td>{{key+1}}</td>
 							<td>{{student.name}}</td>
 							<td>{{student.gender}}</td>
@@ -66,6 +66,7 @@
 		data() {
 			return {
 				url: App.data().url,
+				urlStudent: App.data().url_student.put_student,
 				edit: false,
 
 				stored: [],
@@ -92,14 +93,21 @@
 		mounted() {
 			var self = this;
 
+			console.log('[StudentList.vue MOUNTED]')
+
 			this.$root.$on('add-student', function(data){
-				App.methods.postData(data.url, data.data);
+				console.log("DTAA EMIT", data)
+				App.methods.postData(data.url, data.data)
+
 				sweetalert('Added!', 'Student has been added', 'success');
 				self.render()
+					
 			})
 
 			this.$root.$on('edit-student', function(data){
-				App.methods.putData(data.url, data.data);
+				console.log("DATA EMIITT EDIT ", data)
+
+				App.methods.putData(data.urlStudent, data.data);
 				sweetalert('Updated!', 'Student has been updated', 'success');
 				self.render()
 			})
@@ -116,21 +124,21 @@
 			function getDataStudent() {
 				Vue.axios.get(self.url.student).then((response) => {
 				  self.students = response.data;
-				  console.log('DATA STUDENT: ', self.students)
+				  console.log('[DATA STUDENT]: ', self.students)
 				});
 				getDataSkill();
 			};
 			function getDataSkill() {
 				Vue.axios.get(self.url.skill).then((response) => {
 				  self.storedSkill = response.data;
-				  console.log('DATA SKILL: ', self.storedSkill)
+				  console.log('[DATA SKILL]: ', self.storedSkill)
 				});
 				getDataChar();
 			};
 			function getDataChar() {
 				Vue.axios.get(self.url.character).then((response) => {
 				  self.storedChar = response.data;
-				  console.log('DATA CHAR: ', self.storedChar)
+				  console.log('[DATA CHAR]: ', self.storedChar)
 				});
 			};
 		},
@@ -154,7 +162,8 @@
 				var self = this;
 
 				this.isEditing = true;
-				console.log('studend: ', student)
+				console.clear();
+				console.log('[SELECTED STUDENT]: ', student)
 
 				// var skillOld;
 				// var skillNow;
@@ -163,18 +172,15 @@
 				// GET STUDENT DATA BARU
 				App.methods.getData(this.url.student + '/' + student.id, function(res){
 					self.studNew = res;
-					console.log('STUDENT DATA BARU: ', self.studNew)
 					self.$root.$emit('show-edit-baru', self.studNew);
 				});
 
 				// GET STUDENT SKILLSET
 				App.methods.getData(this.url.student + '/skill/' + student.id, function(res){
 					self.skillOld = res;
-					console.log('SKILL BERDASAR STUDENT: ', self.skillOld)
 				});
 				App.methods.getData(this.url.base + 'major/skill/' + student.major, function(res){
 					self.skillNow = res;
-					console.log('SKILL BERDASAR MAJOR: ', self.skillNow.skill)
 				}); 
 
 				setTimeout(function compareSkill() {
@@ -253,7 +259,6 @@
 				// disini get data student char, tidak get dari characters
 				// GET STUDENT CHARSET
 				App.methods.getData(this.url.student + '/character/' + student.id, function(res){
-					console.log('RES CHAR: ', res)
 					// student.characters = []
 					// for (var i = 0; i < res.length; i++) {
 					// 	student.characters.push({
@@ -265,7 +270,6 @@
 				})
 
 				App.methods.getData(this.url.student + '/skill/' + student.id, function(res){
-					console.log('RES SKILL: ', res)
 					
 					// student.skill = []
 					// for (var i = 0; i < res.length; i++) {
@@ -278,11 +282,11 @@
 				})
 
 				// KIRIM DATA KE FORM 
-				this.$root.$emit('show-edit', student);
+				// this.$root.$emit('show-edit', student);
 
 				// Make select major disabled 
 				var isDisabled = true;
-				this.$root.$emit('select-disabled', isDisabled);
+				// this.$root.$emit('select-disabled', isDisabled);
 
 				//scrolling page
 				window.scrollTo(0, 100);

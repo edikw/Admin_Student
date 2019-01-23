@@ -32,12 +32,10 @@
 			function getData() {
 				Vue.axios.get(self.url.student).then((response) => {
 				  self.dataStudents = response.data;
-				  console.log('DATA STUDENT: ', self.dataStudents)
 				});
 
 				setTimeout(function diagram() {
 					self.dataJmlGen = self.filterGeneration();
-					console.log('data diagram: ', self.dataJmlGen);
 
 					self.makeDiagram();
 				}, 300);
@@ -105,31 +103,30 @@
 				var jmlGen4 = 0;
 				var jmlGen5 = 0;
 
-				this.dataStudents.map(stud => {
-					// console.log(stud)
-					if (stud.generations == 1 || stud.generations == '1') {
-						jmlGen1 = jmlGen1+1;
-						console.log('jumlah gen 1: ', jmlGen1)
-					} else if (stud.generations == 2 || stud.generations == '2') {
-						jmlGen2 = jmlGen2+1;
-						console.log('jumlah gen 2: ', jmlGen2)
-					} else if (stud.generations == 3 || stud.generations == '3') {
-						jmlGen3 = jmlGen3+1;
-						console.log('jumlah gen 3: ', jmlGen3)
-					} else if (stud.generations == 4 || stud.generations == '4') {
-						jmlGen4 = jmlGen4+1;
-						console.log('jumlah gen 4: ', jmlGen4)
-					} else if (stud.generations == 5 || stud.generations == '5') {
-						jmlGen5 = jmlGen5+1;
-						console.log('jumlah gen 5: ', jmlGen5)
-					} else {
-						jmlGen1 = 0;
-						jmlGen2 = 0;
-						jmlGen3 = 0;
-						jmlGen4 = 0;
-						jmlGen5 = 0;
-					}
-				});
+				if(this.dataStudents){
+
+					this.dataStudents.map(stud => {
+						// console.log(stud)
+						if (stud.generations == 1 || stud.generations == '1') {
+							jmlGen1 = jmlGen1+1;
+						} else if (stud.generations == 2 || stud.generations == '2') {
+							jmlGen2 = jmlGen2+1;
+						} else if (stud.generations == 3 || stud.generations == '3') {
+							jmlGen3 = jmlGen3+1;
+						} else if (stud.generations == 4 || stud.generations == '4') {
+							jmlGen4 = jmlGen4+1;
+						} else if (stud.generations == 5 || stud.generations == '5') {
+							jmlGen5 = jmlGen5+1;
+						} else {
+							jmlGen1 = 0;
+							jmlGen2 = 0;
+							jmlGen3 = 0;
+							jmlGen4 = 0;
+							jmlGen5 = 0;
+						}
+					});
+				}
+
 
 				var dataGen = [jmlGen1, jmlGen2, jmlGen3, jmlGen4, jmlGen5];
 

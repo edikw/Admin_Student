@@ -7,13 +7,22 @@
 		<div class="content">
 			<div class="container">
 				<table>
+					<thead>
+						<tr>
+							<td>No</td>
+							<td>Name</td>
+							<td>Actions</td>
+						</tr>
+						</thead>
 					<tbody>
+
 						<tr v-for="(char, key) in stored">
-							<td>{{char.name}}</td>
+							<td>{{key+1}}</td>
+							<td class="title">{{char.name}}</td>
 							<td><img src="../assets/logo/edit.png" v-on:click="editChar(char, key)"><img src="../assets/logo/delete.png" v-on:click="deleteChar(char, key)"></td>
 						</tr>
 						<tr>
-							<td colspan="2">
+							<td colspan="3">
 								<add-character></add-character>		
 							</td>
 						</tr>
@@ -91,9 +100,16 @@
 					description: dataChar.description
 				};
 
-				App.methods.putData(url, data);
+				// App.methods.putData(url, data);
+				axios.put(url).then(res => {
+					if(res.status == 200) {
+						self.render();
+					}
+				}).catch(e => {
+					alert('Data Yang Masukkan Sudah Tersedia');
+					self.render()
+				})
 
-				self.render();
 			});
 		},
 		methods: {
@@ -106,9 +122,17 @@
 					description: 'no description.'
 				};
 				// console.log(backend_data)
-				App.methods.postData(url, backend_data);
+				// App.methods.postData(url, backend_data);
+				axios.post(App.data().url.character, backend_data).then(res => {
+					if(res.status == 200){
+						this.render();
 
-				this.render();
+					}
+				}).catch(e => {
+					alert('Data yang anda masukkan sudah tersedia');
+					this.render();
+				})
+
 			},
 			editChar(char, key) {
 				var data = {char: char, key: key}
@@ -120,9 +144,16 @@
 				// console.log('DELETE THIS: ', char, key);
 
 				var url = this.url.character + '/delete/' + char.id;
-				App.methods.deleteData(url);
+				// App.methods.deleteData(url);
+				axios.delete(url).then(res => {
+					if(res.status == 200){
+						this.render();
+					}
+				}).catch( e => {
+					alert('Gagal Menghapus. Silahkan Coba Lagi');
+					this.render();
+				})
 
-				this.render();
 			},
 			render(){
 				var self = this;
@@ -169,5 +200,8 @@
 	}
 	.character .title hr {
 		width: 50%;
+	}
+	.content .container table tbody tr .title{
+		text-align: left;
 	}
 </style>

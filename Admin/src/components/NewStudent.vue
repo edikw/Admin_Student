@@ -8,16 +8,23 @@
 			<div class="flex-container">
 				<div class="profile-desc">
 					<div class="edit-bio">
-
-
 						<form>
-							<div class="pic-profile">
+							<div class="pic-profile" v-if="!edit">
 								<div class="ava-container">
-									<img v-bind:src="student.pic" @click="openUpload">
+									<img v-bind:src="student.profile_picture" @click="openUpload">
 								</div>
 								<input type="file" name="file" id="profileIMG" class="inputfile" @change="onFilePicked">
 								<button @click="openUpload">Choose file</button>
 							</div>
+
+							<div class="pic-profile" v-if="edit">
+								<div class="ava-container">
+									<img v-bind:src="student.profile_picture" @click="openUpload">
+								</div>
+								<input type="file" name="file" id="profileIMG" class="inputfile" @change="onFilePickedEdit">
+								<button @click="openUpload">Choose file</button>
+							</div>
+
 							<div class="field">
 								<p v-show="nullName">Name field must be filled</p>
 								<p><img src="../assets/logo/name.png" style="margin-right:10px">Name</p>
@@ -95,7 +102,7 @@
 					</div>
 				</div>
 
-				<div class="skill-desc">
+				<div class="skill-desc" v-if="!edit">
 					<div class="edit-skill">
 						<div class="container">
 							<span>SKILL</span>
@@ -140,11 +147,11 @@
 					</div>
 				</div>
 				<!-- ///////////////////////////////////// -->
-				<div class="skill-desc">
+				<div class="skill-desc" v-if="edit">
 					<div class="edit-skill">
 						<div class="container">
 							<span>SKILL</span>
-							<div class="skill-container" v-if="stud.skills" v-for="(skill,key) in stud.skills">
+							<div class="skill-container" v-for="(skill,key) in student.skills">
 								<div class="skill">
 									<ul>
 										<li>
@@ -157,7 +164,7 @@
 								</div>
 							</div>
 
-							<div class="skill-container" v-if="stud.skills && stud.skills.length==0">
+							<div class="skill-container" v-if="stud.skills.length < 0">
 								<div class="skill">
 									<ul>
 										<li>
@@ -168,14 +175,14 @@
 							</div>
 
 							<span>CHARACTER</span>
-							<div class="skill-container" v-if="stud.characters" v-for="char in stud.characters">
+							<div class="skill-container" v-for="char in student.characters">
 								<div class="skill">
 									<ul>
 										<li><span></span>{{char.name}}</li>
 									</ul>
 								</div>
 								<div class="edit">
-									<input type="number" v-model="char.score" placeholder="0">
+									<input type="number" placeholder="0" v-model="char.score">
 								</div>
 							</div>
 
@@ -187,10 +194,10 @@
 
 
 			<div class="submit-button" v-show="!edit">
-				<button v-on:click="saveStudent('new')">SUBMIT</button>
+				<button v-on:click="saveStudent">SUBMIT</button>
 			</div>
 			<div class="submit-button" v-show="edit">
-				<button v-on:click="saveStudent('edit')">EDIT</button>
+				<button v-on:click="editStudent">EDIT</button>
 			</div>
 		</div>
 	</div>
@@ -206,7 +213,7 @@
 	var _student = {
 		created_at: null,
 		name: null,
-		pic: require('../assets/logo/foto_size.png'),
+		profile_picture: require('../assets/logo/foto_size.png'),
 		gender: null,
 		birthday: null,
 		address: null,
@@ -221,7 +228,7 @@
 	var studentBaru = {
 		created_at: null,
 		name: null,
-		pic: require('../assets/logo/foto_size.png'),
+		profile_picture: null,
 		gender: null,
 		birthday: null,
 		address: null,
@@ -237,6 +244,8 @@
 		data() {
 			return {
 				url: App.data().url,
+				url_student: App.data().url_student,
+				// ur_update_student: App.data().url_student
 
 				student : JSON.parse(JSON.stringify(_student)),
 
@@ -260,65 +269,70 @@
 				isSelectDisabled: false,
 
 				stud: JSON.parse(JSON.stringify(studentBaru)),
+				catchEmit: false,
 			}
 		},
 		mounted() {
 			var self = this;
 
+			console.log("[NewStudent.vue MOUNTED]")
+
 			this.$root.$on('show-edit', function(data) {
-				console.log('EDIT THIS: ', data);
-				self.student.skills = []
-				self.student.characters = []
-				setTimeout(function(){
-					self.student = data;
-					if (self.student.major == 1) {
-						self.selectedMajor = 'Animator';
-					} else if (self.student.major == 2) {
-						self.selectedMajor = 'Modeler';
-					} else if (self.student.major == 3) {
-						self.selectedMajor = 'Compositor';
-					} else if (self.student.major == 4) {
-						self.selectedMajor = 'Programmer';
-					} else {
-						self.selectedMajor = data.major;
-					}
-					self.edit = true;
-				}, 500)
+				if(self.catchEmit === false){
+					self.catchEmit = true;
+					console.log('EDIT THIS: ', data);
+					self.student.skills = []
+					self.student.characters = []
+					setTimeout(function(){
+						self.student = data;
+						if (self.student.major == 1) {
+							self.selectedMajor = 'Animator';
+						} else if (self.student.major == 2) {
+							self.selectedMajor = 'Modeler';
+						} else if (self.student.major == 3) {
+							self.selectedMajor = 'Compositor';
+						} else if (self.student.major == 4) {
+							self.selectedMajor = 'Programmer';
+						} else {
+							self.selectedMajor = data.major;
+						}
+						self.edit = true;
+					}, 500)
+				}
 			});
 
 			// GET DATA DARI EDIT BARU 
 			this.$root.$on('show-edit-baru', function(data) {
 				console.log('STUD DATA BARU: ', data)
-				self.stud.address = data.address;
-				self.stud.birthday = data.birthday;
-				self.stud.email = data.email;
-				self.stud.gender = data.gender;
-				self.stud.generation = data.generation;
-				self.stud.id = data.id;
-				self.stud.major = data.major;
-				self.stud.name = data.name;
-				self.stud.status = data.status;
-				self.stud.skills = data.skills;
-				self.stud.characters = data.character
+
+				self.student.address = data.address;
+				self.student.birthday = data.birthday;
+				self.student.email = data.email;
+				self.student.gender = data.gender;
+				self.student.generation = data.generation;
+				self.student.id = data.id;
+				self.student.major = data.major;
+				self.student.name = data.name;
+				self.student.status = data.status;
+				self.student.skills = data.skills;
+				self.student.characters = data.characters;
+				self.student.profile_picture = data.profile_picture;
+
+				console.log("IMAGE EMIT", self.student.profile_picture)
+
+
+				self.edit = true;
 			})
-
-			// BACKEND DATA 
-			// =====================================================
-			
-			// GET SKILLS
-			// this.storedSkill = router.app.skill;
-			// this.storedChar = router.app.character;
-
-			// HANDLE ASYNC HERE
 
 			window.onload = (function(){
 				getDataSkill();
 			})();
+
 			// GET DATA ABOUT FROM BACKEND 
 			function getDataSkill() {
 				Vue.axios.get(self.url.skill).then((response) => {
 				  self.storedSkill = response.data;
-				  console.log('DATA SKILL a: ', self.storedSkill)
+				  console.log('[DATA SKILL]: ', self.storedSkill)
 				});
 				getDataChar();
 			};
@@ -327,12 +341,11 @@
 			function getDataChar() {
 				Vue.axios.get(self.url.character).then((response) => {
 				  self.storedChar = response.data;
-				  console.log('DATA CHAR a: ', self.storedChar)
+				  console.log('[DATA CHAR]: ', self.storedChar)
 				});
 
 				setTimeout(function addCharSet() {
 					for (var i = 0; i < self.storedChar.length; i++) {
-						console.log('karakter di sortir')
 						var char = self.storedChar[i];
 						self.student.characters.push({
 							id: char.id,
@@ -340,98 +353,58 @@
 							score: 0
 						});
 					}
-					// self.storedSkill = self.skillName(self.storedSkill);
-					// self.storedChar = self.charName(self.storedChar);
-					console.log('Hasil sortir karakter: ', self.student.characters)
-				}, 300);
+					console.log('[CHARACTER SORTED]', self.student.characters)
+				}, 1000);
 
 				setTimeout(function setSkill() {
 					this.storedSkill = self.skillName(this.storedSkill)
-				}, 500);
+				}, 1000);
 
 				setTimeout(function setChar() {
 					this.storedChar = self.charName(this.storedChar);
-				}, 500);
+				}, 1000);
 			};
 
 			// ADD CHARACTERS TO STUDENT
-			// this.addCharSet();
 
 			// select disabled detector 
-			console.log('disabled button before: ', this.isSelectDisabled)
 			this.$root.$on('select-disabled', function(data) {
 				this.isSelectDisabled = data;
 				console.log('disabled button after: ', this.isSelectDisabled)
 				if (this.isSelectDisabled == true) {
 					// failed to get element 
 					var selectBtn = document.querySelector('#major');
-					console.log('JANCOKKKwe: ', this.isSelectDisabled, selectBtn)
 					selectBtn.disabled = !selectBtn.disabled;
 				}
 			});
 		},
 		methods: {
-			saveStudent(type){
-				if(type == 'new'){
-					// Make uppercase first char 
-					const name = this.student.name[0].toUpperCase()+this.student.name.slice(1);
-					const gender = this.student.gender[0].toUpperCase()+this.student.gender.slice(1);
-					const address = this.student.address[0].toUpperCase()+this.student.address.slice(1);
+			editStudent(){
 
-					this.student.name = name;
-					this.student.gender = gender;
-					this.student.address = address;
-					// POST STUDENT HERE
-					this.student.created_at = new Date();
-					this.student.major = this.selectedMajorId
-
-					// di backend format datanya skill, bukan skills
-					this.student.skill = this.student.skills
-					this.student.character = this.student.characters
-
-					console.log('POST THIS: ', this.student)
-					this.$root.$emit('add-student', {
-						url: this.url.student + '/create', 
-						data: this.student
-					});
-
-					this.reset();
+				const name = this.student.name[0].toUpperCase()+this.student.name.slice(1);
+				const gender = this.student.gender[0].toUpperCase()+this.student.gender.slice(1);
+				const address = this.student.address[0].toUpperCase()+this.student.address.slice(1);
+				// PUT STUDENT HERE 
+				var data = {
+					name: name,
+					gender: gender,
+					birthday: this.student.birthday,
+					address: address,
+					email: this.student.email,
+					status: this.student.status,
+					major: this.student.major,
+					generations: this.student.generations,
+					skill: [],
+					character: this.student.characters
 				}
-				else if(type == 'edit'){
-					// Make uppercase first char 
-					const name = this.student.name[0].toUpperCase()+this.student.name.slice(1);
-					const gender = this.student.gender[0].toUpperCase()+this.student.gender.slice(1);
-					const address = this.student.address[0].toUpperCase()+this.student.address.slice(1);
-					// PUT STUDENT HERE 
-					var data = {
-						name: name,
-						gender: gender,
-						birthday: this.student.birthday,
-						address: address,
-						email: this.student.email,
-						status: this.student.status,
-						major: this.student.major,
-						generations: this.student.generations,
-						skill: [],
-						character: this.student.characters
-					}
 
-
-
-					// if data skill backend.length != skill student.length maka update tambahan 
-
-
-
-					// di backend format datanya skill, bukan skills
-					// console.log('Berapa skill: ', this.student.skills)
-					for (var i = 0; i < this.student.skills.length; i++) {
+				for (var i = 0; i < this.student.skills.length; i++) {
 						var skill = this.student.skills[i]
 						data.skill.push({
 							id: skill.id,
 							name: skill.name,
 							score: parseInt(skill.score)
 						})
-						console.log('edit nama')
 					}
 
 					console.log('EDIT THIS: ', this.student)
@@ -446,21 +419,33 @@
 					selectBtn.disabled = !selectBtn.disabled;
 
 					this.reset();
-
-				}else{
-					alert('Error: Save Student type is not defined');
-				}
 			},
-			// addCharSet() {
-			// 	for (var i = 0; i < this.storedChar.length; i++) {
-			// 		var char = this.storedChar[i];
-			// 		this.student.characters.push({
-			// 			id: char.id,
-			// 			name: char.name,
-			// 			score: 0
-			// 		});
-			// 	}
-			// },
+
+			saveStudent(){
+
+				const name = this.student.name[0].toUpperCase()+this.student.name.slice(1);
+				const gender = this.student.gender[0].toUpperCase()+this.student.gender.slice(1);
+				const address = this.student.address[0].toUpperCase()+this.student.address.slice(1);
+
+				this.student.name = name;
+				this.student.gender = gender;
+				this.student.address = address;
+				// POST STUDENT HERE
+				this.student.created_at = new Date();
+				this.student.major = this.selectedMajorId
+
+				// di backend format datanya skill, bukan skills
+				this.student.skills = this.student.skills
+				this.student.characters = this.student.characters
+
+				console.log('POST THIS YNG DIKIRIM ======>>>>: ', this.student)
+				this.$root.$emit('add-student', {
+					url: this.url.student + '/create', 
+					data: this.student
+				});
+
+				this.reset();	
+			},
 			skillName(val){
 				for (var i = 0; i < this.storedSkill.length; i++) {
 					var skill = this.storedSkill[i]
@@ -468,7 +453,6 @@
 						return skill.name
 					}
 				}
-				console.log('Skill Namaeeeeee')
 			},
 			charName(val){
 				for (var i = 0; i < this.storedChar.length; i++) {
@@ -477,21 +461,53 @@
 						return char.name
 					}
 				}
-				console.log('Char nameeeeee')
 			},
 			openUpload() {
 				document.getElementById("profileIMG").click()
 			},
 			onFilePicked(event) {
-				const files = event.target.files;
-				const fileReader = new FileReader()
-				fileReader.onload = (e) => {
-					this.profilePic = e.target.result
-				};
-				fileReader.readAsDataURL(files[0])
-				this.image = files[0]
+				console.log(" INI DI FUNGSI ADD")
 
-				console.log(event.target.result)
+				var self = this
+
+				const image = event.target.files[0];
+
+				let data = new FormData();
+				data.append('profile_picture', image);
+
+				let request = new XMLHttpRequest();
+				request.open('POST', this.url_student.profile_student);
+				request.send(data);
+				request.onreadystatechange = function () {
+					if(request.readyState === 4 && request.status === 200) {
+						var res = JSON.parse(request.responseText);
+						// self.user.urlImage = res.url
+						console.log('res', res)
+						self.student.profile_picture = res.url;
+					}
+				}
+
+			},
+			onFilePickedEdit(event){
+				console.log("INI DI FUNGSI EDIT")
+				var self = this
+
+				const image = event.target.files[0];
+
+				let data = new FormData();
+				data.append('profile_picture', image);
+
+				let request = new XMLHttpRequest();
+				request.open('POST', this.url_student.profile_student_update + this.student.id);
+				request.send(data);
+				request.onreadystatechange = function () {
+					if(request.readyState === 4 && request.status === 200) {
+						var res = JSON.parse(request.responseText);
+						// self.user.urlImage = res.url
+						console.log('res', res)
+						self.student.profile_picture = res.url;
+					}
+				}
 			},
 			reset(){
 				// RESET
@@ -539,7 +555,7 @@
 						}
 					}
 				}
-				
+
 				console.log('AFTER SELECTING MAJOR:', this.student)
 			},
 			isSelectDisabled(val) {
@@ -550,24 +566,11 @@
 				}
 			}
 		},
-		// filters: {
-		// 	skillName(val){
-		// 		for (var i = 0; i < this.storedSkill.length; i++) {
-		// 			var skill = this.storedSkill[i]
-		// 			if(val == skill.id){
-		// 				return skill.name
-		// 			}
-		// 		}
-		// 	},
-		// 	charName(val){
-		// 		for (var i = 0; i < this.storedChar.length; i++) {
-		// 			var char = this.storedChar[i]
-		// 			if(val == char.id){
-		// 				return char.name
-		// 			}
-		// 		}
-		// 	}
-		// }
+		filters: {
+			profilePicture(val){
+				return App.data().url.root + val;
+			}
+		}
 	};
 </script>
 

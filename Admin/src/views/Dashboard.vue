@@ -37,7 +37,7 @@ export default {
 	},
 	methods: {
 		checkAuth(){
-			if(!localStorage.getItem('isAuthed')){
+			if(!localStorage.getItem('api_token')){
 		        this.$router.replace({name: "Login"});
 		    }else{
 		    	App.data().authenticated = true;

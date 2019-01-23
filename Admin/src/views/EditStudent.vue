@@ -7,13 +7,13 @@
 		<div class="links">
 			<router-link to="/skill">
 			<div class="link">
-				<img src="../assets/logo/student_grey_1.png" id="student-img">
+				<img src="../assets/logo/student_grey_1.png" id="skill-img">
 				<p>Skill</p>
 			</div>
 			</router-link>
 			<router-link to="/character">
 			<div class="link">
-				<img src="../assets/logo/student_grey_1.png" id="student-img">
+				<img src="../assets/logo/student_grey_1.png" id="char-img">
 				<p>Character</p>
 			</div>
 			</router-link>
@@ -66,8 +66,17 @@
 		transition: .2s;
 	}
 	.nav-student .link:hover {
-		border: 1px solid #000;
-		color: #000;
+		border: 1px solid #c41e30;
+		color: #c41e30;
 
+	}
+	.nav-student .link:hover #student-img{
+		content: url("../assets/logo/student_red_1.png");
+	}
+	.nav-student .link:hover #char-img{
+		content: url("../assets/logo/student_red_1.png");
+	}
+	.nav-student .link:hover #skill-img{
+		content: url("../assets/logo/student_red_1.png");
 	}
 </style>

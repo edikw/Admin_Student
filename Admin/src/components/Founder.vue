@@ -54,6 +54,9 @@ Vue.use(VueAxios, axios);
 			function getData() {
 				Vue.axios.get(self.url.founder).then((response) => {
 				  self.dataFounder = response.data;
+				  self.dataFounder.map(data => {
+				  	self.user.urlImage = 'http://192.168.2.231:8000/' + data.file;
+				  })
 				  console.log('DATA FOUNDER: ', self.dataFounder)
 				});
 				// HANDLE ASYNC BACKUP
@@ -92,15 +95,22 @@ Vue.use(VueAxios, axios);
 				document.getElementById("founderIMG").click()
 			},
 			onFilePicked(event) {
-				const files = event.target.files;
-				const fileReader = new FileReader()
-				fileReader.onload = (e) => {
-					this.user.urlImage = e.target.result
-				}
-				fileReader.readAsDataURL(files[0])
-				this.image = files[0]
+				var self = this
 
-				console.log(event.target.result)
+				const image = event.target.files[0];
+
+				let data = new FormData();
+				data.append('file', image);
+
+				let request = new XMLHttpRequest();
+				request.open('POST', this.url.founderImg);
+				request.send(data);
+				request.onreadystatechange = function () {
+					if(request.readyState === 4 && request.status === 200) {
+						var res = JSON.parse(request.responseText);
+						self.user.urlImage = res.url
+					}
+				}
 			},
 			postFounder(){
 				// LOCALSTORAGE
