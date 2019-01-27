@@ -9,25 +9,25 @@
 				<h4><img src="../assets/logo/major.png" style="margin-right:10px">Select Major</h4>
 
 				<div class="select">
-					<select id="major" class="major" v-model="selectedMajor">
-						<option value="Animator" selected>Animator</option>
-						<option value="Modeler">Modeler</option>
-						<option value="Compositor">Compositor</option>
-						<option value="Programmer">Programmer</option>
+					<select id="major" class="major" v-model="selectedMajor" v-on:change="majorklik(selectedMajor)">
+						<option v-for="(major, i) in majorData" >{{major.name}}</option>
+						<!-- <option value="Modeler">Modeler</option> -->
+						<!-- <option value="Compositor">Compositor</option> -->
+						<!-- <option value="Programmer">Programmer</option> -->
 					</select>
 				</div>
 				
 				<div class="skills">
 					<table>
 						<thead>
-							<tr v-show="selectedList.length>0">
+							<tr v-show="selectedList.length >= 0">
 								<td>No</td>
 								<td>Name</td>
 								<td>Actions</td>
 							</tr>
 						</thead>
 						<tbody>
-							<tr v-for="(skill, key) in selectedList">
+							<tr v-for="(skill, key) in skillData">
 								<td>{{key+1}}</td>
 								<td>{{skill.name}}</td>
 								<td>
@@ -35,7 +35,7 @@
 									<img src="../assets/logo/delete.png" v-on:click="deleteSkill(skill, key)">
 								</td>
 							</tr>
-							<tr v-show="selectedList.length>0">
+							<tr v-show="selectedList.length >= 0">
 								<td colspan="3">
 									<add-item></add-item>
 								</td>
@@ -50,6 +50,7 @@
 
 <script>
 	import AddItem from '../components/AddItem';
+	import sweetalert from 'sweetalert';
 	import Vue from 'vue'
 	import axios from 'axios'
 	import VueAxios from 'vue-axios'
@@ -64,23 +65,37 @@
 		},
 		data() {
 			return {
-				url: App.data().url,
+				skillGet: App.data().url.skill_get,
+				skillDelete: App.data().url.skill_delete,
+				skillUpdate: App.data().url.skill_update,
+				skillPost: App.data().url.skill_post,
+				majorGet: App.data().url.major_get,
+				majorGetId: App.data().url.major_get_id,
 				selectedMajor: '',
 				selectedMajorId: 0,
 				selectedList: [],
 				majors: [],
+
 				skills: [],
 				skillSet: [],
-				newSkill: null
+				newSkill: null,
+
+				majorData: [],
+				skillData: [],
+				majorID: [],
 			}
 		},
 		mounted() {
 			var self = this;
 
-			self.getData();
+			// this.getData();
+			this.getMajor();
 
 			this.$root.$on('add-skill', function(dataSkill) {
-				self.newSkill = dataSkill;
+				console.log("INI ADDD SKILLLL", dataSkill)
+				// self.newSkill = dataSkill;
+				self.setAndRender(dataSkill)
+				// console.log('emit add skill', self.newSkill)
 			});
 
 			// EDIT SKILL
@@ -90,34 +105,62 @@
 		},
 		watch: {
 			newSkill(val){
-				if(val){
+				// if(val){
 					
-					for (var i = 0; i < this.skillSet.length; i++) {
-						if(this.selectedMajor == this.skillSet[i].major){
-							this.skillSet[i].list.push(val);
-						}
-					}
+				// 	for (var i = 0; i < this.skillSet.length; i++) {
+				// 		if(this.selectedMajor == this.skillSet[i].major){
+				// 			console.log("INI selected major", this.selectedMajor);
+				// 			console.log('INI skill set[i', this.skill[i].major);
+				// 			this.skillSet[i].list.push(val);
+				// 		}
+				// 	}
 
-					this.setAndRender(this.skillSet, 'dataSkills');
-				}
+				// 	this.setAndRender(this.skillSet, 'dataSkills');
+				// }
 			},
 			selectedMajor(val) {
+				console.log('val', val)
+
 				for (var i = 0; i < this.skillSet.length; i++) {
+					console.log('WWWWW', this.skillSet[i])
 					if(val == this.skillSet[i].major){
 						this.selectedList = this.skillSet[i].list;
 						this.selectedMajorId = i+1;
+						console.log(this.selectedMajorId)
 					}
 				}
 				this.$root.$emit('major-change', val);
 			}
 		},
 		methods: {
+			majorklik(e){
+				this.skillData = [];
+				this.majorID = [];
+				this.majorData.map( data => {
+					if (e == data.name){
+						axios.get(this.majorGetId + data.id).then(res => {
+							res.data.skill.map(data => {
+								this.skillData.push(data)
+								this.majorID.push(data.major_id)
+							})
+						})
+					}
+				})
+
+			},
+			getMajor() {
+				axios.get(this.majorGet).then(res => {
+					console.log(res);
+					res.data.map(data => {
+						this.majorData.push(data)
+					})
+				})
+			},
 			getData() {
 				var self = this
-				Vue.axios.get(this.url.skill).then((response) => {
+				axios.get(this.skillGet).then((response) => {
 				  if(response.status == 200){
-					  this.skills = response.data;
-					  console.log('DATA SKILL: ', self.skills)
+					  console.log(response)
 				  }
 				  else{
 				  	console.log("GAGAL BOSKU")
@@ -143,13 +186,13 @@
 					var major;
 
 					if(this.majors[i] == 1){
-						major = 'Animator'
+						major = '3D Animator'
 					}
 					else if(this.majors[i] == 2){
-						major = 'Modeler'
+						major = '3D Modeller'
 					}
 					else if(this.majors[i] == 3){
-						major = 'Compositor'
+						major = 'Compossitor'
 					}
 					else if(this.majors[i] == 4){
 						major = 'Programmer'
@@ -200,26 +243,23 @@
 			},
 			editSkill(skill, key) {
 				var data = {
-					major_id: this.selectedMajorId,
+					major_id: skill.major_id,
 					major: this.selectedMajor, 
 					skill: skill, 
-					key: key
 				}
 				this.$root.$emit('edit-skill', data);
 			},
 			deleteSkill(skill, key) {
-				var self = this;
-				var url = this.url.skill + '/delete/' + skill.id;
 
-				axios.delete(url).then(res => {
+				axios.delete(this.skillDelete + skill.id).then(res => {
 					if(res.status == 200){
-						this.getData();
-						this.render();
+						sweetalert('Sukses Menghapus Skill', 'success')
+						// this.render();
+						this.majorklik();
 					}
 				}).catch(e => {
-					alert('Gagal Menghapus Skill. Silahkan Coba Lagi');
-					this.getdata();
-					this.render();
+					sweetalert('Gagal Menghapus Skill. Silahkan coba lagi');
+					// this.render();
 				})
 			},
 			putAndRender(data){
@@ -231,55 +271,50 @@
 					description: '',
 					major_id: data.major_id
 				};
-				console.log("YANG DI EDIT", data);
-				// App.methods.putData(url, data);
-				axios.put(App.data().url.skill_update + id, data).then(res => {
+
+				axios.put(this.skillUpdate + id, data).then(res => {
 					if(res.status == 200){
-						this.getData();
-						this.render();
+						sweetalert('Sukses Update Skill', 'success');
+						// this.render();
+						this.majorklik();
 					}
 				}).catch(e => {
-					alert('Gagal Mengedit Skill. Silahkan Coba Lagi')
-				})
+					sweetalert('Gagal Update Skill. Silahkan coba lagi');
+				});
 			},
-			setAndRender(data, name, key){
-				console.log("DATA", data);
-				console.log("name", name);
-				console.log("key", key)
+			setAndRender(data){
+
 				var backend_data = {
-					major_id: this.selectedMajorId,
-					name: this.newSkill,
+					major_id: this.majorID[0],
+					name: data,
 					description: 'no description.'
 				};
 				console.log("yang dikirim", backend_data)
-				axios.post(App.data().url.skill_post, backend_data).then(res =>{
+
+				axios.post(this.skillPost, backend_data).then(res =>{
 					if(res.status == 200){
-						this.render();
-						this.getData();
+						sweetalert('Sukses Menambahkan Skill', 'success')
+						// this.render();
+						this.majorklik();
 					}
 				}).catch(e => {
-					alert('Data yang anda masukkan sudah tersedia')
-					this.getData();
-					this.render()
+					sweetalert('Gagal Menambahkan Skill')
+					// this.render()
 					
 				})
 
 			},
 			render(){
-				var self = this;
-				setTimeout(function(){
-					Vue.axios.get(self.url.skill).then((response) => {
-					  	self.skills = response.data;
-					  	console.log("INI APA", self.skills)
-						for (var i = 0; i < self.skillSet.length; i++) {
-							var set = self.skillSet[i];
-							if(self.selectedMajor == set.major){
-								self.selectedList = set.list;
-								console.log("WOTOTOTOTTO", self.selectedList)
-							}
+				axios.get(this.skillGet).then((response) => {
+				  	this.skills = response.data;
+					for (var i = 0; i < this.skillSet.length; i++) {
+						var set = this.skillSet[i];
+						if(this.selectedMajor == set.major){
+							this.selectedList = set.list;
+							console.log("YES", this.selectedList)
 						}
-					});
-				}, 500);
+					}
+				});
 			}
 		}
 	}

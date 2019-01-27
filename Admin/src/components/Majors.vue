@@ -7,44 +7,44 @@
 </template>
 
 <script>
-	import Vue from 'vue'
 	import App from '../App.vue'
 	import router from '../router.js'
 	import axios from 'axios'
-	import VueAxios from 'vue-axios'
-	Vue.use(VueAxios, axios);
 	export default {
-		name: 'Majors',
 		data() {
 			return {
 				dataStudents: null,
 				dataJmlGen: [],
-				url: App.data().url,
+				majorGet: App.data().url.student_get,
 			}
 		},
 		mounted(){
-			var self = this;
+			
+			this.getData();
 
-			window.onload = (function(){
-				getData();
-			})();
+			// function getData() {
+			// 	Vue.axios.get(self.majorGet).then((response) => {
+			// 	  self.dataStudents = response.data;
+			// 	});
 
-			function getData() {
-				Vue.axios.get(self.url.student).then((response) => {
-				  self.dataStudents = response.data;
-				});
+			// 	setTimeout(function diagram() {
+			// 		self.dataJmlGen = self.filterGeneration();
 
-				setTimeout(function diagram() {
-					self.dataJmlGen = self.filterGeneration();
-
-					self.makeDiagram();
-				}, 300);
-			}
-
-
-			// console.log('data major: ', router.app.students);
+			// 		self.makeDiagram();
+			// 	}, 300);
+			// }
 		},
 		methods: {
+			getData(){
+				axios.get(this.majorGet).then((response) => {
+					if(response == 200){
+						this.dataStudents = response.data;
+						this.dataJmlGen = this.filterGeneration();
+						this.makeDiagram();
+						
+					}
+				});
+			},
 			makeDiagram() {
 				var densityCanvas = document.getElementById("densityChart");
 

@@ -58,15 +58,35 @@
 	import sweetalert from 'sweetalert';
 	import router from '../router';
 	import App from '../App';
-	import Vue from 'vue';
 	import axios from 'axios';
-	import VueAxios from 'vue-axios';
 
 	export default {
 		data() {
 			return {
-				url: App.data().url,
-				urlStudent: App.data().url_student.put_student,
+				skillGet: App.data().url.skill_get,
+
+				characterGet: App.data().url.character_get,
+				
+				studentUpdate: App.data().url.student_update,
+				
+				studentPost: App.data().url.student_post,
+				
+				studentPostFile: App.data().url.student_post_img,
+				
+				studentUpdateFile: App.data().url.student_update_img,
+				
+				skillgetId: App.data().url.skill_get_id,
+				
+				charactergetId: App.data().url.character_get_id,
+				
+				studentGetId: App.data().url.student_get_id,
+				
+				studentDelete: App.data().url.student_delete,
+
+				studentGet: App.data().url.student_get,
+
+				majorGetId: App.data().url.major_get_id,
+				
 				edit: false,
 
 				stored: [],
@@ -96,67 +116,82 @@
 			console.log('[StudentList.vue MOUNTED]')
 
 			this.$root.$on('add-student', function(data){
-				console.log("DTAA EMIT", data)
-				App.methods.postData(data.url, data.data)
-
-				sweetalert('Added!', 'Student has been added', 'success');
-				self.render()
-					
+				self.postDataStudent(data);
 			})
 
 			this.$root.$on('edit-student', function(data){
-				console.log("DATA EMIITT EDIT ", data)
-
-				App.methods.putData(data.urlStudent, data.data);
-				sweetalert('Updated!', 'Student has been updated', 'success');
-				self.render()
+				self.editDataStudent(data);
 			})
 
-			// DATA DARI BACKEND 
-			// this.students = router.app.students;
-			// this.storedChar = router.app.character;
-			// this.storedSkill = router.app.skill;
-
 			window.onload = (function(){
-				getDataStudent();
+				self.getDataStudent();
+				self.getDataSkill();
+				self.getDataChar();
 			})();
-			// GET DATA FROM BACKEND 
-			function getDataStudent() {
-				Vue.axios.get(self.url.student).then((response) => {
-				  self.students = response.data;
-				  console.log('[DATA STUDENT]: ', self.students)
-				});
-				getDataSkill();
-			};
-			function getDataSkill() {
-				Vue.axios.get(self.url.skill).then((response) => {
-				  self.storedSkill = response.data;
-				  console.log('[DATA SKILL]: ', self.storedSkill)
-				});
-				getDataChar();
-			};
-			function getDataChar() {
-				Vue.axios.get(self.url.character).then((response) => {
-				  self.storedChar = response.data;
-				  console.log('[DATA CHAR]: ', self.storedChar)
-				});
-			};
 		},
 		methods: {
-			showStudent(student){
-				// ini buat apa ?
+			getDataStudent() {
+				axios.get(this.studentGet).then((response) => {
+				  this.students = response.data;
 
-				var self = this;
-				console.log('ditampilkan')
+				});
+			},
+			getDataSkill(){
+				axios.get(this.skillGet).then((response) => {
+				  this.storedSkill = response.data;
+				});
+			},
+			getDataChar(){
+				axios.get(this.characterGet).then((response) => {
+				  this.storedChar = response.data;
+				});
+			},
+			postDataStudent(data){
+				console.log('DATA DI TERIMA DAN DI KIRIM', data)
+				axios.post(this.studentPost, data.data).then(res => {
+					if(res.status == 200){
+						sweetalert('Sukses Menambahkan Student', 'success');
+						// this.render();
+						this.getDataStudent();
+					}else {
+						sweetalert('Gagal Menambahkan Student. Silahkan Coba Lagi');
+					}
+				}).catch(e => {
+					sweetalert('Gagal Menambahkan Student. Silahkan Coba Lagi');
+				})
+			},
+			editDataStudent(data) {
+				console.log('DTAA YANG MAU NDI EDIT di fungsi edit student', data)
+				axios.put(this.studentUpdate + data.id, data).then(res => {
+					if(res.status == 200){
+						sweetalert('Sukses Edit Student', 'success');
+						// this.render();
+						this.getDataStudent();
+					}else {
+						sweetalert('Gagal Edit Student. Silahkan Coba Lagi');
+					}
+				}).catch(e => {
+					sweetalert('Gagal Edit Student. Silahkan Coba Lagi');
+				})	
+			},
+			showStudent(student){
 				this.selectedStudent = student;
 				// GET SKILLSET
-				App.methods.getData(this.url.student + '/skill/' + student.id, function(res){
-					self.selectedSkillset = res;
-				})
+				axios.get(this.skillgetId + student.id ).then(res => {
+					this.selectedSkillset = res
+				});
+				// App.methods.getData(this.url.student + '/skill/' + student.id, function(res){
+				// 	self.selectedSkillset = res;
+				// })
+
 				// GET CHARSET
-				App.methods.getData(this.url.student + '/character/' + student.id, function(res){
-					self.selectedCharset = res;
-				})
+				axios.get(this.charactergetId + student.id ).then(res => {
+					this.selectedCharset = res
+				});
+
+				// App.methods.getData(this.url.student + '/character/' + student.id, function(res){
+				// 	self.selectedCharset = res;
+				// });
 			},
 			editStudent(student, key) {
 				var self = this;
@@ -170,54 +205,65 @@
 				// var loop;
 
 				// GET STUDENT DATA BARU
-				App.methods.getData(this.url.student + '/' + student.id, function(res){
-					self.studNew = res;
-					self.$root.$emit('show-edit-baru', self.studNew);
-				});
+				axios.get(this.studentGetId + student.id).then(res => {
+					this.studNew = res;
+					console.log("RESPONE GET STUD EDIT", res)
+					this.$root.$emit('show-edit-baru', this.studNew);
+					
+				})
+
+				// App.methods.getData(this.url.student + '/' + student.id, function(res){
+				// });
 
 				// GET STUDENT SKILLSET
-				App.methods.getData(this.url.student + '/skill/' + student.id, function(res){
-					self.skillOld = res;
-				});
-				App.methods.getData(this.url.base + 'major/skill/' + student.major, function(res){
-					self.skillNow = res;
-				}); 
+				// axios.get(this.skillgetId + student.id).then(res => {
+				// 	self.skillOld = res;
+					
+				// });
 
-				setTimeout(function compareSkill() {
-					// var self = this;
-					if (self.skillNow.length > self.skillOld.skills.length) {
-						student.skills = []
-						var num = 0;
-						for (var i = 0; i < self.skillOld.skills.length; i++) {
-							num = num + 1;
-							// student.skills.push({
-							// 	id: self.skillOld[i].skill_id,
-							// 	name: self.skillOld[i].name,
-							// 	score: self.skillOld[i].score
-							// })
-						}
-						console.log('num: ', num)
-						for (var j = 0; j < self.skillNow.length; j++) {
-							if (j > num) {
-								student.skills.push({
-									id: self.skillNow[j].id,
-									name: self.skillNow[j].name,
-									major_id: self.skillNow[j].major_id,
-									score: 0
-								})
-							}
-						}
-					} else {
-						student.skills = []
-						for (var i = 0; i < self.skillOld.skills.length; i++) {
-							student.skills.push({
-								id: self.skillOld.skills[i].skill_id,
-								name: self.skillOld.skills[i].name,
-								score: self.skillOld.skills[i].score
-							})
-						}
-					}
-				}, 300);
+				// // App.methods.getData(this.url.student + '/skill/' + student.id, function(res){
+				// // });
+
+				// // axios.get(this.)
+				// App.methods.getData(this.majorGetId + 'major/skill/' + student.major, function(res){
+				// 	self.skillNow = res;
+				// }); 
+
+				// setTimeout(function compareSkill() {
+				// 	// var self = this;
+				// 	if (self.skillNow.length > self.skillOld.skills.length) {
+				// 		student.skills = []
+				// 		var num = 0;
+				// 		for (var i = 0; i < self.skillOld.skills.length; i++) {
+				// 			num = num + 1;
+				// 			// student.skills.push({
+				// 			// 	id: self.skillOld[i].skill_id,
+				// 			// 	name: self.skillOld[i].name,
+				// 			// 	score: self.skillOld[i].score
+				// 			// })
+				// 		}
+				// 		console.log('num: ', num)
+				// 		for (var j = 0; j < self.skillNow.length; j++) {
+				// 			if (j > num) {
+				// 				student.skills.push({
+				// 					id: self.skillNow[j].id,
+				// 					name: self.skillNow[j].name,
+				// 					major_id: self.skillNow[j].major_id,
+				// 					score: 0
+				// 				})
+				// 			}
+				// 		}
+				// 	} else {
+				// 		student.skills = []
+				// 		for (var i = 0; i < self.skillOld.skills.length; i++) {
+				// 			student.skills.push({
+				// 				id: self.skillOld.skills[i].skill_id,
+				// 				name: self.skillOld.skills[i].name,
+				// 				score: self.skillOld.skills[i].score
+				// 			})
+				// 		}
+				// 	}
+				// }, 300);
 
 
 
@@ -258,7 +304,7 @@
 
 				// disini get data student char, tidak get dari characters
 				// GET STUDENT CHARSET
-				App.methods.getData(this.url.student + '/character/' + student.id, function(res){
+				// App.methods.getData(this.url.student + '/character/' + student.id, function(res){
 					// student.characters = []
 					// for (var i = 0; i < res.length; i++) {
 					// 	student.characters.push({
@@ -267,9 +313,9 @@
 					// 		score: res[i].score
 					// 	})
 					// }
-				})
+				// })
 
-				App.methods.getData(this.url.student + '/skill/' + student.id, function(res){
+				// App.methods.getData(this.url.student + '/skill/' + student.id, function(res){
 					
 					// student.skill = []
 					// for (var i = 0; i < res.length; i++) {
@@ -279,7 +325,7 @@
 					// 		score: res[i].score
 					// 	})
 					// }
-				})
+				// })
 
 				// KIRIM DATA KE FORM 
 				// this.$root.$emit('show-edit', student);
@@ -292,21 +338,26 @@
 				window.scrollTo(0, 100);
 			},
 			deleteStudent(student, key) {
-				var url = this.url.student + '/delete/' + student.id;
-				App.methods.deleteData(url);
+				// var url = this.url.student + '/delete/' + student.id;
+				axios.delete(this.studentDelete + student.id).then(res => {
+					if (res.status == 200){
+						sweetalert('Deleted!', 'Student has been deleted', 'success');
+						// this.render();
+						this.getDataStudent();
 
-				this.render();
-				sweetalert('Deleted!', 'Student has been deleted', 'success');
+					}
+				})
+
 			},
-			render(){
-				var self = this;
-				self.students = [];
-				setTimeout(function(){
-					App.methods.getData(self.url.student, function(res){
-						self.students = res;
-					});
-				}, 500);
-			}
+			// render(){
+			// 	// self.students = [];
+			// 	setTimeout(function(){
+
+			// 		App.methods.getData(self.url.student, function(res){
+			// 			self.students = res;
+			// 		});
+			// 	}, 500);
+			// }
 		},
 		filters: {
 			major(val) {

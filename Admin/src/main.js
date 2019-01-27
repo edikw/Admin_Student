@@ -6,16 +6,16 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import Chart from 'chart.js'
 
-var url = App.data().url;
-var data = {
-	about: null,
-	founder: null,
-	skill: null,
-	character: null,
-	students: null,
-	ourwork: null,
-	login: null
-};
+// var url = App.data().url;
+// var data = {
+// 	about: null,
+// 	founder: null,
+// 	skill: null,
+// 	character: null,
+// 	students: null,
+// 	ourwork: null,
+// 	login: null
+// };
 
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios);

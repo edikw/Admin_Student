@@ -1,49 +1,55 @@
 <template>
 	<div class="about">
 		<div class="edit">
-			<!-- <img src="../assets/logo/add_botton.png"> -->
 			<img @click="focusField('about')" v-show="!showField('about')" v-bind:src="image">
 		</div>
 		<span>ABOUT</span>
 		<div class="pic-about">
 			<img v-bind:src="user.urlImage" @click="openUpload">
 			<input type="file" name="file" id="aboutIMG" class="inputfile" @change="onFilePicked">
-			<button @click="openUpload">Choose file</button>
+			<button @click="openUpload" v-show="showField('about')" v-if="!proses">Choose file</button>
+			<button v-show="showField('about')" v-if="proses">Please wait...</button>
 		</div>
-		<div class="text-about">
+		<div class="text-about" v-if="dataAbout">
 			<textarea 
 				name="text" 
 				id="text" 
 				cols="55" 
 				rows="10" 
 				wrap="soft" 
-				v-model="user.about" 
+				v-model="dataAbout.description" 
 				v-show="showField('about')" 
 				type="text" 
 				class="field-value form-control" 
 				@focus="focusField('about')" 
 				>		
 			</textarea>
-			<p class="field-value" v-show="!showField('about')" @click="focusField('about')">{{ user.about }}</p>
-			<button class="btn" v-show="showField('about')" v-on:click="postAbout()">submit</button>
+			<p class="field-value" v-show="!showField('about')" @click="focusField('about')">{{ dataAbout.description }}</p>
+			<button class="btn" v-show="showField('about')" v-on:click="postAbout()">Save Change</button>
 			<button class="btn" v-show="showField('about')" @click="blurField">cancel</button>
 		</div>
 	</div>
 </template>
 
 <script>
-import Vue from 'vue'
+// import Vue from 'vue'
 import App from '../App.vue'
 import router from '../router.js'
 import axios from 'axios'
-import VueAxios from 'vue-axios'
-Vue.use(VueAxios, axios);
+import sweetalert from 'sweetalert';
+
+// import VueAxios from 'vue-axios'
+// Vue.use(VueAxios, axios);
 
 	export default {
-		name: 'About',
+		// name: 'About',
 		data() {
 			return {
-				url: App.data().url,
+				aboutGet: App.data().url.about_get,
+				aboutUpdateImg: App.data().url.about_update_Img,
+		        aboutUpdate: App.data().url.about_update,
+		        aboutPostImg: App.data().url.post_file,
+
 				ID: 1,
 				user: {
 					about: 'Does University adalah sekolah bakat yang hanya mengajarkan apa yang para siswanya suka. Sistem pembelajaran pun dilakukan dengan metode karantina agar mimpi mereka tetap terjaga.Berdiri sejak 15 Desember 2016 dengan jumlah 10 siswa. Kini Does University telah menerima 5 generasi siswa yang terdiri dari jurusan Animasi 3D, 3D Modelling, Video Compositing, dan Programming. Dengan total lebih dari 110 siswa yang berasal dari hampir seluruh daerah di Indonesia.',
@@ -54,7 +60,8 @@ Vue.use(VueAxios, axios);
 				textAbout: '',
 
 				dataAbout: null,
-				image : require('../assets/logo/edit.png')
+				image : require('../assets/logo/edit.png'),
+				proses: false
 			}
 		},
 		mounted(){
@@ -64,35 +71,32 @@ Vue.use(VueAxios, axios);
 			// GET DATA ABOUT FROM BACKEND 
 			
 				// HANDLE ASYNC BACKUP
-			setTimeout(function getBackup() {
-				if (!self.dataAbout) {
-					self.textAbout = self.description;
-				} else {
-					if(self.dataAbout[0]){
-						self.textAbout = self.dataAbout[0].description;
-						console.log('ABOUT ONO!!', self.textAbout)
-					}else{
-						console.log('ABOUT RAONO!!')
-						self.textAbout = self.description;
-						}
-					}
-				}, 200);
+			// setTimeout(function getBackup() {
+			// 	if (!self.dataAbout) {
+			// 		self.textAbout = self.description;
+			// 	} else {
+			// 		if(self.dataAbout[0]){
+			// 			self.textAbout = self.dataAbout[0].description;
+			// 			console.log('ABOUT ONO!!', self.textAbout)
+			// 		}else{
+			// 			console.log('ABOUT RAONO!!')
+			// 			self.textAbout = self.description;
+			// 			}
+			// 		}
+			// 	}, 200);
 
 			// GET LOCAL STORAGE
-			if(localStorage.getItem('dataAbout')){
-				this.user.about = localStorage.getItem('dataAbout');
-			};
+			// if(localStorage.getItem('dataAbout')){
+			// 	this.user.about = localStorage.getItem('dataAbout');
+			// };
 		},
 		methods: {
 			getData() {
-				Vue.axios.get(this.url.about).then((response) => {
-					this.dataAbout = response.data;
-					console.log("APAPA", this.dataAbout)
-
-					this.dataAbout.map(data=> {
-
-						this.user.urlImage = 'http://192.168.2.231:8000/' + data.file;
-				  	
+				axios.get(this.aboutGet).then((response) => {
+					response.data.map(data => {
+						this.dataAbout = data;
+						this.user.urlImage = data.file;
+						
 					})
 				});
 			},
@@ -110,48 +114,54 @@ Vue.use(VueAxios, axios);
 				document.getElementById("aboutIMG").click()
 			},
 			onFilePicked(event) {
-				var self = this;
-				// const files = event.target.files;
-				// const fileReader = new FileReader()
-				// fileReader.onload = (e) => {
-				// 	this.user.urlImage = e.target.result
-				// }
-				// fileReader.readAsDataURL(files[0])
-				// this.image = files[0]
-
-				// console.log(event.target.result)
+				this.proses = true;
+ 				var self = this;
 
 				const image = event.target.files[0];
 
 				let data = new FormData();
-				data.append('file', image);
+				data.append('images', image);
+
+				console.log("DATA YANG DIKIRM", data)
 
 				let request = new XMLHttpRequest();
-				request.open('POST', this.url.aboutImg);
+				request.open('POST', this.aboutPostImg);
 				request.send(data);
 				request.onreadystatechange = function () {
 					if(request.readyState === 4 && request.status === 200) {
 						var res = JSON.parse(request.responseText);
-						self.user.urlImage = res.url
+						console.log(res)
+						res.uploaded_image.map(data  => {
+							self.user.urlImage = data.size.medium
+							console.log('dataimage', self.user.urlImage);
+							
+						})
+						self.proses = false;
+
 					}
 				}
+			
 			},
 			postAbout(){
-				// LOCALSTORAGEE
-				localStorage.setItem('dataAbout', this.user.about);
 				
-				// BACKEND
-				
-				// PUT 
-				// saved to database but showing error message
 				var id = this.ID;
-				var url = this.url.about + '/update/' + id;
 				var data = {
-					file: '',
-					description: this.textAbout
+					file: this.user.urlImage,
+					description: this.dataAbout.description
 				}
 
-				App.methods.putData(url, data);
+				console.log('Yang Dikirim', data)
+
+				axios.put(this.aboutUpdate + id, data).then(res => {
+					if(res.status == 200){
+						this.getData();
+						sweetalert('Success Edit About', 'success');
+					}else{
+						sweetalert('Gagal Edit About. Silahkan coba Lagi');
+					}
+				}).catch(e => {
+					sweetalert('Gagal Edit About. Silahkakn coba Lagi');
+				})
 
 				this.blurField();
 			}
@@ -173,6 +183,7 @@ Vue.use(VueAxios, axios);
 	}
 	.about p {
 		font-size: 14px;
+		margin-top: 10px;
 	}
 	.about img {
 		display: inline-block;
@@ -185,6 +196,9 @@ Vue.use(VueAxios, axios);
 	}
 	.about .text-about p {
 		white-space: pre-wrap;
+	}
+	.about .text-about {
+		margin-top: 10px;
 	}
 	.about .text-about input[type=text]{
 		width: 90%;
@@ -207,10 +221,9 @@ Vue.use(VueAxios, axios);
 	.pic-about {
 		display: flex;
 		align-items: center;
-		padding: 10px;
 	}
 	.pic-about img {
-		width: 50px;
+		width: 150px;
 	}
 	.inputfile {
 		width: 0.1px;

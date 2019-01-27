@@ -26,12 +26,11 @@
 							</div>
 
 							<div class="field">
-								<p v-show="nullName">Name field must be filled</p>
 								<p><img src="../assets/logo/name.png" style="margin-right:10px">Name</p>
 								<input v-model="student.name" type="text">
+								<p class="warning" v-show="nullName">* Name field must be filled</p>
 							</div>
 							<div class="field">
-								<p v-show="nullGender">Gender field must be filled</p>
 								<p><img src="../assets/logo/gender.png" style="margin-right:10px">Gender</p>
 								<div class="gender">
 									<label class="checkbox-container">
@@ -50,42 +49,43 @@
 										Shemale
 									</label>
 								</div>
+								<p class="warning" v-show="nullGender">* Gender field must be filled</p>
 							</div>
 							<div class="field">
-								<p v-show="nullbirthday">Birthday field must be filled</p>
 								<p><img src="../assets/logo/birthday.png" style="margin-right:10px">Birthday</p>
 								<input v-model="student.birthday" type="date">
+								<p class="warning" v-show="nullbirthday">* Birthday field must be filled</p>
 							</div>
 							<div class="field">
-								<p v-show="nullAddress">Address field must be filled</p>
 								<p><img src="../assets/logo/address.png" style="margin-right:10px">Address</p>
 								<input v-model="student.address" type="text">
+								<p class="warning" v-show="nullAddress">* Address field must be filled</p>
 							</div>
 							<div class="field">
-								<p v-show="nullEmail">Email field must be filled</p>
 								<p><img src="../assets/logo/email.png" style="margin-right:10px">Email</p>
 								<input type="email" v-model="student.email">
+								<p class="warning" v-show="nullEmail">* Email field must be filled</p>
 							</div>
 							<div class="field">
-								<p v-show="nullStatus">Status field must be filled</p>
 								<p><img src="../assets/logo/status.png" style="margin-right:10px">Status</p>
 								<select id="status" class="status" v-model="student.status">
 									<option>Studying</option>
 									<option>Graduated</option>
 								</select>
+								<p class="warning" v-show="nullStatus">* Status field must be filled</p>
 							</div>
 							<div class="major-gen-container">
 								<div class="major-wrapper">
 									<p><img src="../assets/logo/major.png" style="margin-right:10px">Major</p>
 									<select id="major" class="major" v-model="selectedMajor">
-										<option>Animator</option>
-										<option>Modeler</option>
-										<option>Compositor</option>
+										<option>3D Animator</option>
+										<option>3D Modeller</option>
+										<option>Compossitor</option>
 										<option>Programmer</option>
 									</select>
+									<p class="warning" v-show="nullMajor">* Major field must be filled</p>
 								</div>
 								<div class="generation-wrapper">
-									<p v-show="nullGeneration">Generation field must be filled</p>
 									<p>Generation</p>
 									<select id="generation" class="generation" v-model="student.generations">
 										<option>1</option>
@@ -94,11 +94,10 @@
 										<option>4</option>
 										<option>5</option>
 									</select>
+									<p class="warning" v-show="nullGeneration">* Generation field must be filled</p>
 								</div>
 							</div>
 						</form>
-
-
 					</div>
 				</div>
 
@@ -107,7 +106,7 @@
 						<div class="container">
 							<span>SKILL</span>
 							<!-- SKILL LOOPING -->
-							<div class="skill-container" v-if="student.skills" v-for="(skill,key) in student.skills">
+							<div class="skill-container" v-for="(skill,key) in student.skills">
 								<div class="skill">
 									<ul>
 										<li>
@@ -191,8 +190,6 @@
 				</div>
 				<!-- ////////////////////////////////////// -->
 			</div>
-
-
 			<div class="submit-button" v-show="!edit">
 				<button v-on:click="saveStudent">SUBMIT</button>
 			</div>
@@ -207,7 +204,6 @@
 	import router from '../router.js'
 	import Vue from 'vue'
 	import axios from 'axios'
-	import VueAxios from 'vue-axios'
 	import App from '../App'
 
 	var _student = {
@@ -221,7 +217,7 @@
 		status: null,
 		major: null,
 		generations: null,
-		skills: [],
+		skill: [],
 		characters: []
 	};
 
@@ -243,9 +239,12 @@
 	export default {
 		data() {
 			return {
-				url: App.data().url,
-				url_student: App.data().url_student,
-				// ur_update_student: App.data().url_student
+				skillGet: App.data().url.skill_get,
+				characterGet: App.data().url.character_get,
+				studentUpdate: App.data().url.student_update,
+				studentPost: App.data().url.student_post,
+				studentPostFile: App.data().url.post_file,
+				studentUpdateFile: App.data().url.student_update_img,
 
 				student : JSON.parse(JSON.stringify(_student)),
 
@@ -255,6 +254,7 @@
 				storedChar: null,
 				storedSkill: null,
 				selectedMajor: null,
+
 				selectedMajorId: 0,
 
 				nullName: false,
@@ -286,11 +286,11 @@
 					setTimeout(function(){
 						self.student = data;
 						if (self.student.major == 1) {
-							self.selectedMajor = 'Animator';
+							self.selectedMajor = '3D Modeller';
 						} else if (self.student.major == 2) {
-							self.selectedMajor = 'Modeler';
+							self.selectedMajor = '3D Animator';
 						} else if (self.student.major == 3) {
-							self.selectedMajor = 'Compositor';
+							self.selectedMajor = 'Compossitor';
 						} else if (self.student.major == 4) {
 							self.selectedMajor = 'Programmer';
 						} else {
@@ -305,20 +305,20 @@
 			this.$root.$on('show-edit-baru', function(data) {
 				console.log('STUD DATA BARU: ', data)
 
-				self.student.address = data.address;
-				self.student.birthday = data.birthday;
-				self.student.email = data.email;
-				self.student.gender = data.gender;
-				self.student.generation = data.generation;
-				self.student.id = data.id;
-				self.student.major = data.major;
-				self.student.name = data.name;
-				self.student.status = data.status;
-				self.student.skills = data.skills;
-				self.student.characters = data.characters;
-				self.student.profile_picture = data.profile_picture;
+				self.student.address = data.data.address;
+				self.student.birthday = data.data.birthday;
+				self.student.email = data.data.email;
+				self.student.gender = data.data.gender;
+				self.student.generations = data.data.generations;
+				self.student.id = data.data.id;
+				self.student.major = data.data.major;
+				self.student.name = data.data.name;
+				self.student.status = data.data.status;
+				self.student.skills = data.data.skills;
+				self.student.characters = data.data.characters;
+				self.student.profile_picture = data.data.profile_picture;
 
-				console.log("IMAGE EMIT", self.student.profile_picture)
+				console.log("EMIT DATA SUDAH DIMASUKKAN", self.student)
 
 
 				self.edit = true;
@@ -330,7 +330,7 @@
 
 			// GET DATA ABOUT FROM BACKEND 
 			function getDataSkill() {
-				Vue.axios.get(self.url.skill).then((response) => {
+				axios.get(self.skillGet).then((response) => {
 				  self.storedSkill = response.data;
 				  console.log('[DATA SKILL]: ', self.storedSkill)
 				});
@@ -339,30 +339,40 @@
 			// GET CHARS
 			// char.name ada 
 			function getDataChar() {
-				Vue.axios.get(self.url.character).then((response) => {
+				axios.get(self.characterGet).then((response) => {
 				  self.storedChar = response.data;
 				  console.log('[DATA CHAR]: ', self.storedChar)
+					if(self.storedChar.length > 0){
+						console.log('DI FUNGSI ADD CHAR SHET', self.storedChar)
+						for (var i = 0; i < self.storedChar.length; i++) {
+							var char = self.storedChar[i];
+							self.student.characters.push({
+								id: char.id,
+								name: char.name,
+								score: 0
+							});
+						}
+
+					}
 				});
 
-				setTimeout(function addCharSet() {
-					for (var i = 0; i < self.storedChar.length; i++) {
-						var char = self.storedChar[i];
-						self.student.characters.push({
-							id: char.id,
-							name: char.name,
-							score: 0
-						});
-					}
-					console.log('[CHARACTER SORTED]', self.student.characters)
-				}, 1000);
+				if(self.stored.length > 0){
+					self.storedSkill = self.skillName(self.storedSkill)
+				}
+				if(self.storedChar.length > 0){
+					self.storedChar = self.charName(self.storedChar);
+				}
 
-				setTimeout(function setSkill() {
-					this.storedSkill = self.skillName(this.storedSkill)
-				}, 1000);
 
-				setTimeout(function setChar() {
-					this.storedChar = self.charName(this.storedChar);
-				}, 1000);
+				// setTimeout(function addCharSet() {
+				// 	console.log('[CHARACTER SORTED]', self.student.characters)
+				// }, 1000);
+
+				// setTimeout(function setSkill() {
+				// }, 1000);
+
+				// setTimeout(function setChar() {
+				// }, 1000);
 			};
 
 			// ADD CHARACTERS TO STUDENT
@@ -385,68 +395,120 @@
 				const gender = this.student.gender[0].toUpperCase()+this.student.gender.slice(1);
 				const address = this.student.address[0].toUpperCase()+this.student.address.slice(1);
 				// PUT STUDENT HERE 
+				// var major_id = null;
+				// if (this.selectedMajor == '3D Modeller') {
+				// 	major_id = 1;
+				// 	console.log('Major ID: ', major_id);
+				// } else if (this.selectedMajor == '3D Animator') {
+				// 	major_id = 2;
+				// } else if (this.selectedMajor == 'Compossitor') {
+				// 	major_id = 3;
+				// } else if (this.selectedMajor == 'Programmer') {
+				// 	major_id = 4;
+				// } else {
+				// 	major_id = 0;
+				// }
+				// this.selectedMajorId = major_id;
+
 				var data = {
+					id: this.student.id,
 					name: name,
 					gender: gender,
 					birthday: this.student.birthday,
 					address: address,
 					email: this.student.email,
 					status: this.student.status,
-					major: this.student.major,
+					major: this.selectedMajorId,
 					generations: this.student.generations,
-					skill: [],
-					character: this.student.characters
+					skill: this.student.skills,
+					characters: this.student.characters,
+					profile_picture: this.student.profile_picture
+				}
+				for (var i = 0; i < this.student.skills.length; i++) {
+					var skill = this.student.skills[i]
+					data.skill.push({
+						id: skill.id,
+						description: '',
+						category:'',
+						skill_id: skill.id,
+						student_id: this.student.id,
+						name: skill.name,
+						score: parseInt(skill.score)
+					})
 				}
 
-				for (var i = 0; i < this.student.skills.length; i++) {
-						var skill = this.student.skills[i]
-						data.skill.push({
-							id: skill.id,
-							name: skill.name,
-							score: parseInt(skill.score)
-						})
-					}
+				console.log('SKILLL STUDENT di edit student', this.student.skills)
+				
 
 					console.log('EDIT THIS: ', this.student)
-					this.$root.$emit('edit-student', {
-						url: this.url.student + '/update/' + this.student.id, 
-						data: data
-					});
+					console.log('data yang mau di emit', data)
+					this.$root.$emit('edit-student', this.student);
 
 					// ngembalikin disabled 
-					var selectBtn = document.querySelector('#major');
-					console.log('JANCOKK2: ', this.isSelectDisabled, selectBtn)
-					selectBtn.disabled = !selectBtn.disabled;
+					// var selectBtn = document.querySelector('#major');
+					// console.log('JANCOKK2: ', this.isSelectDisabled, selectBtn)
+					// selectBtn.disabled = !selectBtn.disabled;
 
 					this.reset();
 			},
 
 			saveStudent(){
 
-				const name = this.student.name[0].toUpperCase()+this.student.name.slice(1);
-				const gender = this.student.gender[0].toUpperCase()+this.student.gender.slice(1);
-				const address = this.student.address[0].toUpperCase()+this.student.address.slice(1);
+				if(this.student.name == null){
+					this.nullName = true;
+				} else if(this.student.gender == null ){
+					this.nullGender = true;
+				} else if(this.student.birthday == null){
+					this.nullbirthday = true;
+				} else if(this.student.address == null){
+					this.nullAddress = true;
+				} else if(this.student.email == null){
+					this.nullEmail = true;
+				} else if(this.student.status == null){
+					this.nullStatus = true;
+				} else if(this.selectedMajor == null){
+					this.nullMajor = true;
+				} else if(this.student.generations == null){
+					this.nullGeneration = true;
+				} else {
+					const name = this.student.name[0].toUpperCase()+this.student.name.slice(1);
+					const gender = this.student.gender[0].toUpperCase()+this.student.gender.slice(1);
+					const address = this.student.address[0].toUpperCase()+this.student.address.slice(1);
 
-				this.student.name = name;
-				this.student.gender = gender;
-				this.student.address = address;
-				// POST STUDENT HERE
-				this.student.created_at = new Date();
-				this.student.major = this.selectedMajorId
+					this.student.name = name;
+					this.student.gender = gender;
+					this.student.address = address;
+					// POST STUDENT HERE
+					this.student.created_at = new Date();
+					this.student.major = this.selectedMajorId
 
-				// di backend format datanya skill, bukan skills
-				this.student.skills = this.student.skills
-				this.student.characters = this.student.characters
+					// di backend format datanya skill, bukan skills
+					this.student.skill = this.student.skills
+					this.student.characters = this.student.characters
+					this.student.profile_picture = this.student.profile_picture
 
-				console.log('POST THIS YNG DIKIRIM ======>>>>: ', this.student)
-				this.$root.$emit('add-student', {
-					url: this.url.student + '/create', 
-					data: this.student
-				});
+					console.log('POST THIS YNG DIKIRIM ======>>>>: ', this.student)
+					this.$root.$emit('add-student', {
+						// url: this.studentPost,
+						data: this.student
+					});
 
-				this.reset();	
+					this.reset();
+					this.nullName = false; 
+					this.nullGender = false; 
+					this.nullbirthday = false; 
+					this.nullAddress = false; 
+					this.nullEmail = false; 
+					this.nullStatus = false; 
+					this.nullMajor = false; 
+					this.nullGeneration = false; 
+
+				}
+
 			},
 			skillName(val){
+				console.log("isi dari skillName", val)
+				console.log('isi dari skillName 2', this.storedSkill);
 				for (var i = 0; i < this.storedSkill.length; i++) {
 					var skill = this.storedSkill[i]
 					if(val == skill.id){
@@ -473,17 +535,20 @@
 				const image = event.target.files[0];
 
 				let data = new FormData();
-				data.append('profile_picture', image);
+				data.append('images', image);
 
 				let request = new XMLHttpRequest();
-				request.open('POST', this.url_student.profile_student);
+				request.open('POST', this.studentPostFile);
 				request.send(data);
 				request.onreadystatechange = function () {
 					if(request.readyState === 4 && request.status === 200) {
 						var res = JSON.parse(request.responseText);
 						// self.user.urlImage = res.url
 						console.log('res', res)
-						self.student.profile_picture = res.url;
+						res.uploaded_image.map(data => {
+							self.student.profile_picture = data.size.small;
+							
+						})
 					}
 				}
 
@@ -498,14 +563,17 @@
 				data.append('profile_picture', image);
 
 				let request = new XMLHttpRequest();
-				request.open('POST', this.url_student.profile_student_update + this.student.id);
+				request.open('POST', this.studentUpdateFile + this.student.id);
 				request.send(data);
 				request.onreadystatechange = function () {
 					if(request.readyState === 4 && request.status === 200) {
 						var res = JSON.parse(request.responseText);
+						res.uploaded_image.map(data => {
+							self.student.profile_picture = data.size.small;
+							
+						})
 						// self.user.urlImage = res.url
 						console.log('res', res)
-						self.student.profile_picture = res.url;
 					}
 				}
 			},
@@ -514,7 +582,7 @@
 				this.selectedMajor = null;
 				this.selectedMajorId = 0;
 				this.student = JSON.parse(JSON.stringify(_student));
-				this.addCharSet();
+				// this.addCharSet();
 				this.edit = false;
 				this.isSelectDisabled = false;
 			}
@@ -522,28 +590,32 @@
 		watch: {
 			selectedMajor(val) {
 				var self = this;
+				console.log('isi dari selectedMajor di watch', val)
 
 				// get major & major id
 				var major_id = null;
-				if (val == 'Animator' || val == 'animator') {
+				if (val == '3D Modeller') {
 					major_id = 1;
 					console.log('Major ID: ', major_id);
-				} else if (val == 'Modeler' || val == 'modeler') {
+				} else if (val == '3D Animator') {
 					major_id = 2;
-				} else if (val == 'Compositor' || val == 'compositor') {
+				} else if (val == 'Compossitor') {
 					major_id = 3;
-				} else if (val == 'Programmer' || val == 'programmer') {
+				} else if (val == 'Programmer') {
 					major_id = 4;
 				} else {
 					major_id = 0;
 				}
 				this.selectedMajorId = major_id;
 
+				console.log('MAJOR IDDDDDD', this.selectedMajorId)
+
 				// SEARCH SKILL 
 				if(!this.student.created_at){
 					this.student.skills = []
 					console.log('masukk selected major suuu')
-					for (var i=0; i<this.storedSkill.length; i++) {
+					console.log('di fungsi selected major', this.storedSkill);
+					for (var i=0; i < this.storedSkill.length; i++) {
 						console.log('masuk selected major di for')
 						var skill = this.storedSkill[i]
 						if (major_id == skill.major_id) {
@@ -561,16 +633,16 @@
 			isSelectDisabled(val) {
 				if (val === true) {
 					var selectBtn = document.querySelector(".major-wrapper select");
-					console.log('JANCOKKK: ', this.isSelectDisabled)
+					// console.log('JANCOKKK: ', this.isSelectDisabled)
 					// selectBtn.disabled;
 				}
 			}
 		},
-		filters: {
-			profilePicture(val){
-				return App.data().url.root + val;
-			}
-		}
+		// filters: {
+		// 	profilePicture(val){
+		// 		return App.data().url.root + val;
+		// 	}
+		// }
 	};
 </script>
 
@@ -876,5 +948,11 @@
 	}
 	.student-all .profile .table-result th, tr, td {
 		padding: 10px;
+	}
+	.warning{
+		margin-top: 0;
+		color: red;
+		padding: 0;
+		font-size: 12px;
 	}
 </style>

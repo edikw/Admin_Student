@@ -17,9 +17,12 @@
 					<label>Website:</label>
 					<input type="text" v-model="websiteText">
 				</div>
-				<div class="button-add">
+				<div class="button-add" v-if="proses">
 					<button class="create-work" v-on:click="sendForm()">Add</button>
 					<button class="cancel-work" v-on:click="closeForm">Cancel</button>
+				</div>
+				<div class="button-proses" v-if="!proses">
+					<button class="create-work">please wait...</button>
 				</div>
 			</div>
 		</div>
@@ -30,8 +33,8 @@
 	import sweetalert from 'sweetalert';
 	import Vue from 'vue'
 	import axios from 'axios'
-	import VueAxios from 'vue-axios'
 	import App from '../../App'
+
 
 	export default {
 		data() {
@@ -42,12 +45,12 @@
 				websiteText: '',
 				isCreating: false,
 				key: 0,
-				url: App.data().url_ourwork,
+				ourworkPost: App.data().url.ourwork_post_all,
+				ourworkGet: App.data().url.ourwork_get,
+				ourworkPostFile: App.data().url.post_file,
+				proses: true
+
 			}
-		},
-		mounted() {
-			var self = this;
-			console.log('create: ', self.isCreating);
 		},
 		methods: {
 			openForm() {
@@ -77,16 +80,19 @@
 
 					console.log("DATA YANG DI POST", ourwork)
 
-					axios.post(this.url.post_text, ourwork).then(res => {
+					axios.post(this.ourworkPost, ourwork).then(res => {
 							if(res.status == 200){
+								sweetalert('Sukses Menambahkan Ourwork', 'success');
 								window.location.reload();
+							}else {
+								sweetalert('Gagal Menambahkan Ourwork')			
 							}
 					})
 
 					this.reset();
 
 				} else {
-					alert('Field must be filled!');
+					sweetalert('Data Belum Di isi. Silahkan isi data dahulu');
 				}
 			},
 			reset() {
@@ -99,22 +105,27 @@
 				document.getElementById("workIMG").click()
 			},
 			onFilePicked(event) {
+				this.proses = false;
 
 				var self = this
 
 				const image = event.target.files[0];
 
 				let data = new FormData();
-				data.append('file', image);
+				data.append('images', image);
 
 				let request = new XMLHttpRequest();
-				request.open('POST', this.url.post_file);
+				request.open('POST', this.ourworkPostFile);
 				request.send(data);
 				request.onreadystatechange = function () {
 					if(request.readyState === 4 && request.status === 200) {
 						var res = JSON.parse(request.responseText);
-						console.log('RES POST IMAGE', res);
-						self.addWork = res.url
+						res.uploaded_image.map(data => {
+							self.addWork = data.size.medium
+							
+						})
+						self.proses = true;
+						console.log('RES POST IMAGE', self.addWork);
 					}
 				}
 			}
@@ -165,6 +176,16 @@
 		border: 1px solid #ccc;
 		display: block;
 		width: 100%;
+	}
+	.projects .project .work-wrapper-edit .button-proses button {
+		margin: 0;
+		padding: 5px;
+		border-radius: 5px;
+		border: 1px solid #ccc;
+		background-color: #c41e30;
+		color: #fff;
+		width: 50%;
+
 	}
 	.projects .project .work-wrapper-edit .button-add button {
 		margin: 0;

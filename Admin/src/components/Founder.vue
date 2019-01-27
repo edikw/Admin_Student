@@ -6,35 +6,48 @@
 		</div>
 		<span>FOUNDER</span>
 		<div class="pic-founder">
-			<img v-bind:src="user.urlImage" @click="openUpload">
+			<img v-bind:src="user.urlImage">
 			<input type="file" name="file" id="founderIMG" class="inputfile" @change="onFilePicked">
-			<button @click="openUpload">Choose file</button>
+			<button @click="openUpload" v-show="showField('founder')" v-if="!proses">Choose file</button>
+			<button v-show="showField('founder')" v-if="proses">please wait...</button>
 		</div>
-		<div class="text-founder">
-			<textarea name="text" id="text" cols="55" rows="10" wrap="soft" v-model="user.founder" v-show="showField('founder')" type="text" class="field-value form-control" @focus="focusField('founder')"></textarea>
-			<p class="field-value" v-show="!showField('founder')" @click="focusField('founder')">{{ user.founder }}</p>
-			<button class="btn" v-show="showField('founder')" @click="postFounder()">submit</button>
+		<div class="text-founder" v-if=" dataFounder">
+			<textarea 
+				name="text" 
+				id="text" 
+				cols="55" 
+				rows="10" 
+				wrap="soft" 
+				v-model="dataFounder.description" 
+				v-show="showField('founder')" 
+				type="text" 
+				class="field-value form-control" @focus="focusField('founder')"></textarea>
+			<p class="field-value" v-show="!showField('founder')" @click="focusField('founder')">{{ dataFounder.description }}</p>
+			<button class="btn" v-show="showField('founder')" @click="postFounder()">Save Change</button>
 			<button class="btn" v-show="showField('founder')" @click="blurField">cancel</button>
 		</div>
 	</div>
 </template>
 
 <script>
-import Vue from 'vue'
 import App from '../App.vue'
 import router from '../router.js'
 import axios from 'axios'
-import VueAxios from 'vue-axios'
-Vue.use(VueAxios, axios);
+import sweetalert from 'sweetalert';
+
 	export default {
 		name: 'founder',
 		data() {
 			return {
 				url: App.data().url,
+				founderGet: App.data().url.founder_get,
+				founderPostImg: App.data().url.post_file,
+				founderUpdate: App.data().url.founder_update,
+
 				ID: 1,
 				user: {
 					founder: 'Does University adalah sekolah bakat yang hanya mengajarkan apa yang para siswanya suka. Sistem pembelajaran pun dilakukan dengan metode karantina agar mimpi mereka tetap terjaga.Berdiri sejak 15 Desember 2016 dengan jumlah 10 siswa. Kini Does University telah menerima 5 generasi siswa yang terdiri dari jurusan Animasi 3D, 3D Modelling, Video Compositing, dan Programming. Dengan total lebih dari 110 siswa yang berasal dari hampir seluruh daerah di Indonesia.',
-					urlImage: require('../assets/logo/gallery_grey.png'),
+					urlImage:'',
 					image: null
 				},
 				editField: '',
@@ -42,45 +55,51 @@ Vue.use(VueAxios, axios);
 				textFounder: '',
 
 				dataFounder: null,
+				proses: false
 			}
 		},
 		mounted(){
 			var self = this;
 
-			window.onload = (function(){
-				getData();
-			})();
+			this.getData();
 			// GET DATA ABOUT FROM BACKEND 
-			function getData() {
-				Vue.axios.get(self.url.founder).then((response) => {
-				  self.dataFounder = response.data;
-				  self.dataFounder.map(data => {
-				  	self.user.urlImage = 'http://192.168.2.231:8000/' + data.file;
-				  })
-				  console.log('DATA FOUNDER: ', self.dataFounder)
-				});
+			// function getData() {
+			// 	axios.get(self.founderGet).then((response) => {
+			// 		response.data.map(data => {
+			// 			self.dataFounder = data;
+			// 			console.log('DATA FOUNDER: ', self.dataFounder)
+			// 		});
+			// 	});
 				// HANDLE ASYNC BACKUP
-				setTimeout(function getBackup() {
-					if (!self.dataFounder) {
-						self.textFounder = self.description;
-						console.log('FOUNDER RAONO! ', self.textFounder)
-					} else {
-						if (self.dataFounder[0]) {
-							self.textFounder = self.dataFounder[0].description;
-							console.log('FOUNDER ONO! ', self.textFounder)
-						} else {
-							self.textFounder = self.description;
-						}
-					}
-				}, 200);
-			};
+			// 	setTimeout(function getBackup() {
+			// 		if (!self.dataFounder) {
+			// 			self.textFounder = self.description;
+			// 			console.log('FOUNDER RAONO! ', self.textFounder)
+			// 		} else {
+			// 			if (self.dataFounder[0]) {
+			// 				self.textFounder = self.dataFounder[0].description;
+			// 				console.log('FOUNDER ONO! ', self.textFounder)
+			// 			} else {
+			// 				self.textFounder = self.description;
+			// 			}
+			// 		}
+			// 	}, 200);
+			// };
 
 			// INITIAL LOCALSTORAGE
-			if(localStorage.getItem('dataFounder')){
-				this.user.founder = localStorage.getItem('dataFounder');
-			}
+		// 	if(localStorage.getItem('dataFounder')){
+		// 		this.user.founder = localStorage.getItem('dataFounder');
+		// 	}
 		},
 		methods: {
+			getData(){
+				axios.get(this.founderGet).then((response) => {
+					response.data.map(data => {
+						this.dataFounder = data;
+						this.user.urlImage = data.file;
+					});
+				});
+			},
 			focusField(founder) {
 				this.editField = founder;
 				// this.user[founder] = ''
@@ -95,36 +114,63 @@ Vue.use(VueAxios, axios);
 				document.getElementById("founderIMG").click()
 			},
 			onFilePicked(event) {
+				this.proses = true;
 				var self = this
 
 				const image = event.target.files[0];
 
+				console.log('iamge', image)
+
 				let data = new FormData();
-				data.append('file', image);
+				data.append('images', image);
+
+				console.log('YAng dikirim', data)
+				const headers = {
+					'Content-Type': 'multipart/form-data'
+				}
 
 				let request = new XMLHttpRequest();
-				request.open('POST', this.url.founderImg);
+				request.open('POST', this.founderPostImg);
 				request.send(data);
 				request.onreadystatechange = function () {
 					if(request.readyState === 4 && request.status === 200) {
 						var res = JSON.parse(request.responseText);
-						self.user.urlImage = res.url
+						console.log(res)
+						res.uploaded_image.map(e => {
+							self.user.urlImage = e.size.medium
+							console.log('data image', self.user.urlImage);
+							self.proses = false;
+						})
+						// self.user.urlImage = res.url
 					}
 				}
+
+				// fetch(this.founderPostImg,{
+				// 	method: 'POST',
+				// 	data: data,
+				// 	headers: new Headers({
+				// 		'Content-Type': 'application/json'
+				// 	})
+				// }).then(res => {
+				// 	console.log(res)
+				// })
 			},
-			postFounder(){
-				// LOCALSTORAGE
-				localStorage.setItem('dataFounder', this.user.founder);
-
-				// PUT 
+			postFounder(){ 
 				var id = this.ID;
-				var url = this.url.founder + '/update/' + id;
 				var data = {
-					file: '',
-					description: this.textFounder
+					file: this.user.urlImage,
+					description: this.dataFounder.description
 				}
+				console.log('DTA yang dikirm', data);
 
-				App.methods.putData(url, data);
+				axios.put(this.founderUpdate + id, data).then(res => {
+					if(res.status == 200){
+						this.getData();
+						sweetalert('Update!', 'Founder has been Update', 'success');
+					}
+				}).catch(err => {
+					sweetalert('Failed!', 'error');
+				})
 
 				this.blurField();
 			}
@@ -147,6 +193,7 @@ Vue.use(VueAxios, axios);
 	}
 	.founder p {
 		font-size: 14px;
+		margin-top: 10px;
 	}
 	.founder img {
 		display: inline-block;
@@ -159,6 +206,9 @@ Vue.use(VueAxios, axios);
 	}
 	.founder .text-founder p {
 		white-space: pre-wrap;
+	}
+	.founder .text-founder {
+		margin-top: 10px;
 	}
 	.founder .text-founder input[type=text]{
 		width: 90%;
@@ -181,10 +231,10 @@ Vue.use(VueAxios, axios);
 	.pic-founder {
 		display: flex;
 		align-items: center;
-		padding: 10px;
+		/*padding: 10px;*/
 	}
 	.pic-founder img {
-		width: 50px;
+		width: 150px;
 	}
 	.inputfile {
 		width: 0.1px;

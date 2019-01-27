@@ -55,7 +55,7 @@
 		        </slot>
 		       </section>
 		       <footer class="modal-footer">
-		          <slot name="footer">
+		          <slot name="footer" v-if="!proses">
 
 		            <button
 		              type="button"
@@ -72,6 +72,15 @@
 		              Edit
 		          </button>
 		        </slot>
+		        <div class="footer-proses" v-if="proses">
+
+		            <button
+		              type="button"
+		              class="btn-green"
+		            >
+		              Please wait...
+		          </button>
+		        </div>
 		      </footer>
 		    </div>
 		  </div>
@@ -84,7 +93,6 @@
 	import router from '../../router.js'
 	import Vue from 'vue'
 	import axios from 'axios'
-	import VueAxios from 'vue-axios'
 	import App from '../../App'
 
 	export default {
@@ -96,13 +104,18 @@
 
 				storedOurworkDB: null,
 				dataListOurwork: [],
-				url: App.data().url_ourwork,
+				// url: App.data().url_ourwork,
+				ourworkGet: App.data().url.ourwork_get,
+				ourworkUpdate: App.data().url.ourwork_update_all,
+				ourworkDelete: App.data().url.ourwork_delete,
+				ourworkUpdateFile: App.data().url.post_file,
 				modal: false,
 				category: '',
 				title: '',
 				website:'',
 				idWork: null,
-				file_picture: null
+				file_picture: null,
+				proses: false
 			}
 		},
 		mounted() {
@@ -115,7 +128,7 @@
 				this.modal = false;
 			},
 			getOurwork(){
-				axios.get(this.url.get_ourwork).then(res => {
+				axios.get(this.ourworkGet).then(res => {
 					console.log('res get ourwork', res)
 					this.dataListOurwork = res.data
 
@@ -134,7 +147,7 @@
 				}
 				console.log("DATA YANG DIKIRIM EDIT", dataEdit)
 
-				axios.put(this.url.update_text + this.idWork, dataEdit).then(res => {
+				axios.put(this.ourworkUpdate + this.idWork, dataEdit).then(res => {
 					console.log('RESPONE EDIT', res);
 					if(res.status == 200){
 						this.getOurwork()
@@ -152,7 +165,7 @@
 			deleteWork(work, key) {
 				console.log('Masuk ke remove work!');
 
-				axios.delete(this.url.delete_ourwork + work.id).then(res => {
+				axios.delete(this.ourworkDelete + work.id).then(res => {
 					console.log(res)
 
 					sweetalert('Deleted!', 'Project has been deleted.', 'success');
@@ -164,23 +177,28 @@
 				document.getElementById("idImg").click()
 			},
 			sendFile(event) {
+				this.proses = true
 
 				var self = this
 
 				const image = event.target.files[0];
 
 				let data = new FormData();
-				data.append('file', image);
+				data.append('images', image);
 
 				let request = new XMLHttpRequest();
-				request.open('POST', this.url.update_file + this.idWork);
+				request.open('POST', this.ourworkUpdateFile);
 				request.send(data);
 				request.onreadystatechange = function () {
 					if(request.readyState === 4 && request.status === 200) {
 						var res = JSON.parse(request.responseText);
-						console.log('RES POST IgdfklmhtMAGE', res);
-						console.log("SUDAHNDAPAT", self.file_picture);
-						self.file_picture = res.url;
+						res.uploaded_image.map(data => {
+							self.file_picture = data.size.medium;
+							console.log('RES POST IgdfklmhtMAGE', res);
+							console.log("SUDAHNDAPAT", self.file_picture);
+							
+						})
+						self.proses = false
 					}
 				}
 			},
@@ -327,6 +345,9 @@
 	.modal-footer {
 		border-top: 1px solid #eeeeee;
 		justify-content: flex-end;
+	}
+	.modal-footer .footer-proses button {
+		width: 100%;
 	}
 
 	.modal-body {

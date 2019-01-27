@@ -10,7 +10,7 @@
 				<div class="label">
 					<label><img src="../assets/logo/name.png">
 					Name</label><br>
-					<input v-model="name" type="text" placeholder="Name" autocomplete="off"><br>
+					<input v-model="username" type="text" placeholder="Name" autocomplete="off"><br>
 				</div>
 				<div class="label">
 					<label><img src="../assets/logo/password.png">
@@ -26,42 +26,17 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import router from '../router.js'
-import axios from 'axios'
-import VueAxios from 'vue-axios'
-import VueAuthenticate from 'vue-authenticate'
+	import router from '../router.js'
+	import axios from 'axios'
+	import App from '../App.vue'
+	import sweetalert from 'sweetalert';
 
-Vue.use(VueAxios, axios);
-Vue.use(VueAuthenticate, {
-	baseUrl: 'http://192.168.2.231:8000',
-	providers: {
-		github: {
-			clientId: '',
-			redirectUri: 'http://192.168.2.225:8080'
-		}
-	}
-});
-
-new Vue({
-	methods: {
-		login: function() {
-			this.$auth.login({username, password}).then(function () {
-				
-			})
-		}
-	}
-})
-
-import main from '../main.js'
 	export default {
-		name: 'Login',
 		data() {
 			return {
-				name: '',
-				password: '',
-				url_login: 'http://192.168.2.231:8000/login',
-				dataLogin: null
+				username: null,
+				password: null,
+				url_login: App.data().url.login,
 			}
 		},
 		mounted() {
@@ -69,7 +44,11 @@ import main from '../main.js'
 		},
 		methods: {
 			login() {
-				// parsing login 
+		        const dataLogin = {
+		        	username: this.username,
+		        	password: this.password
+		        };
+				
 				const params = {
 		          headers: {
 		            'Content-Type': 'application/json',
@@ -79,23 +58,15 @@ import main from '../main.js'
 		          },
 		        };
 
-		        this.dataLogin = {
-		        	username: this.name,
-		        	password: this.password
-		        }
 
-		        console.log("data yang dikirim", this.dataLogin)
+		        console.log("data yang dikirim", dataLogin)
 
-				Vue.axios.post(this.url_login, this.dataLogin, params).then((response) => {
+				axios.post(this.url_login, dataLogin, params).then((response) => {
 
 				  if (response.status === 200) {
-					  console.log('response login: ', response.data)
-					  
-					  var token = response.data.api_token;
-
+					  const token = response.data.api_token;
 					  localStorage.setItem('api_token', token);
-					  console.log(localStorage.getItem('api_token'));
-
+					  sweetalert('Login Success', 'success');
 					  if(localStorage.getItem('api_token')){
 						  this.$router.push('/dashboard');
 					  }
@@ -103,51 +74,9 @@ import main from '../main.js'
 				  	throw new Error('Error!');
 				  }
 				}).catch(e => {
-				  	alert('Nama atau Password Anda Salah. Silahkan Coba Lagi');
-					console.log('Error: ', e.response);
+				  	sweetalert('Nama atau Password yang anda masukkan salah. Silahkan coba lagi');
 				});
 
-				// LOGIN APUS2 
-				// if(this.input.name != "" && this.input.password != "") {
-				// 	if(this.input.name == this.$parent.mockAccount.name && this.input.password == this.$parent.mockAccount.password) {
-				// 		// LOGIN SUCCESS
-
-				// 		// set local auth
-				// 		this.$emit("authenticated", true);
-				// 		localStorage.setItem('isAuthed', true);
-				// 		console.log(localStorage.getItem('isAuthed'));
-
-				// 		// redirect to dashboard
-				// 		this.$router.replace({name: "Dashboard"});
-				// 	} else {
-				// 		document.getElementById("tes").innerHTML = "username or password is incorrect!"
-				// 		console.log("username or password is incorrect!")
-				// 	}
-				// } else {
-				// 	document.getElementById("tes").innerHTML = "the fields cannot be empty!"
-				// 	console.log("the fields fields cannot be empty!")
-				// }
-
-				// LOGIN  
-				// if(this.input.name != "" && this.input.password != "") {
-				// 	if(this.input.name == this.dataLogin.username && this.input.password == this.dataLogin.password) {
-				// 		// LOGIN SUCCESS
-
-				// 		// set local auth
-				// 		this.$emit("authenticated", true);
-				// 		localStorage.setItem('isAuthed', true);
-				// 		console.log(localStorage.getItem('isAuthed'));
-
-				// 		// redirect to dashboard
-				// 		this.$router.replace({name: "Dashboard"});
-				// 	} else {
-				// 		document.getElementById("tes").innerHTML = "username or password is incorrect!"
-				// 		console.log("username or password is incorrect!")
-				// 	}
-				// } else {
-				// 	document.getElementById("tes").innerHTML = "the fields cannot be empty!"
-				// 	console.log("the fields fields cannot be empty!")
-				// }
 			}
 		}
 	}

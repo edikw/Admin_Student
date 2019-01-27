@@ -28,46 +28,65 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 Vue.use(VueAxios, axios);
 
+// const baseurl = 'http://192.168.2.231:8088/'
+// const baseurl = 'http://192.168.2.231:8181/'
+const basebox = 'https://student-does.herokuapp.com/v1/studentbox'
+const baseurl = 'https://student-does.herokuapp.com/'
+
   export default {
     name: 'App',
     data() {
       return {
         url: {
-          root: 'http://192.168.2.231:8000/',
-          base: 'http://192.168.2.231:8000/v1/',
-          about: 'http://192.168.2.231:8000/v1/about',
-          aboutImg: 'http://192.168.2.231:8000/v1/about/updatefile/1',
-          founder: 'http://192.168.2.231:8000/v1/founder',
-          founderImg: 'http://192.168.2.231:8000/v1/founder/updatefile/1',
-          skill: 'http://192.168.2.231:8000/v1/skill',
-          skill_post: 'http://192.168.2.231:8000/v1/skill/create',
-          skill_update: 'http://192.168.2.231:8000/v1/skill/update/',
-          character: 'http://192.168.2.231:8000/v1/character',
-          student: 'http://192.168.2.231:8000/v1/student',
-          ourwork: 'http://192.168.2.231:8000/v1/ourwork'
 
-        },
-        url_student: {
-          get_student: 'http://192.168.2.231:8000/v1/student',
-          post_student: 'http://192.168.2.231:8000/v1/student/create',
-          put_student: 'http://192.168.2.231:8000/v1/student/update/', //+id
-          delete_student: 'http://192.168.2.231:8000/v1/student/delete/',//+id
-          profile_student: 'http://192.168.2.231:8000/v1/student/postfile',
-          profile_student_update: 'http://192.168.2.231:8000/v1/student/updatefile/'
-        },
-        url_major: {
-          get_major: 'http://192.168.2.231:8000/v1/major',
-          post_major: 'http://192.168.2.231:8000/v1/major/create',
-          put_major: 'http://192.168.2.231:8000/v1/major/update/', //+id
-          delete_major: 'http://192.168.2.231:8000/v1/major/delete/'//+id
-        },
-        url_ourwork: {
-          post_file: 'http://192.168.2.231:8000/v1/ourwork/postfile',
-          update_file: 'http://192.168.2.231:8000/v1/ourwork/updatefile/',
-          update_text: 'http://192.168.2.231:8000/v1/ourwork/update/',
-          get_ourwork: 'http://192.168.2.231:8000/v1/ourwork',
-          delete_ourwork: 'http://192.168.2.231:8000/v1/ourwork/delete/',
-          post_text: 'http://192.168.2.231:8000/v1/ourwork/create'
+          base: baseurl,
+
+          post_file: basebox,
+
+          about_get: baseurl + 'v1/about',
+          about_update_Img: baseurl + 'v1/about/updatefile/1',
+          about_update: baseurl + 'v1/about/update/',
+          about_post_img: basebox,
+          
+          founder_get: baseurl + 'v1/founder',
+          founder_post_Img: baseurl + 'v1/founder/updatefile/1',
+          founder_update: baseurl + 'v1/founder/update/',
+
+          skill_get: baseurl + 'v1/skill',
+          skill_post: baseurl + 'v1/skill/create',
+          skill_update: baseurl + 'v1/skill/update/',
+          skill_delete: baseurl + 'v1/skill/delete/',
+          skill_get_id: baseurl + 'v1/skill/',
+
+          character_get: baseurl + 'v1/character',
+          character_post: baseurl + 'v1/character/create',
+          character_update: baseurl + 'v1/character/update/',
+          character_delete: baseurl + 'v1/character/delete/',
+          character_get_id: baseurl + 'v1/character/',
+
+          student_get: baseurl + 'v1/student',
+          student_get_id: baseurl + 'v1/student/',
+          student_post: baseurl + 'v1/student/create',
+          student_post_img: baseurl + 'v1/student/postfile',
+          student_update_img: baseurl + 'v1/student/updatefile/',
+          student_update: baseurl + 'v1/student/update/',
+          student_delete: baseurl + 'v1/student/delete/',
+          
+          ourwork_get: baseurl + 'v1/ourwork',
+          ourwork_post_img: baseurl + 'v1/ourwork/postfile',
+          ourwork_post_all: baseurl + 'v1/ourwork/create',
+          ourwork_update_img: baseurl + 'v1/ourwork/updatefile/',
+          ourwork_update_all: baseurl + 'v1/ourwork/update/',
+          ourwork_delete: baseurl + 'v1/ourwork/delete/',
+
+          major_get: baseurl + 'v1/major',
+          major_get_id: baseurl + 'v1/major/skill/',
+          major_post: baseurl + 'v1/major/create',
+          major_update: baseurl + 'v1/major/update/',
+          major_delete: baseurl + 'v1/major/delete/',
+
+
+          login: baseurl + 'v1/login'
         },
         authenticated: false,
         mockAccount: {

@@ -14,11 +14,11 @@
 							<td>Actions</td>
 						</tr>
 						</thead>
-					<tbody>
+					<tbody v-if="stored">
 
 						<tr v-for="(char, key) in stored">
 							<td>{{key+1}}</td>
-							<td class="title">{{char.name}}</td>
+							<td class="title">{{char.name}} | {{char.id}}</td>
 							<td><img src="../assets/logo/edit.png" v-on:click="editChar(char, key)"><img src="../assets/logo/delete.png" v-on:click="deleteChar(char, key)"></td>
 						</tr>
 						<tr>
@@ -36,11 +36,10 @@
 
 <script>
 	import AddCharacter from '../components/AddItem';
+	import sweetalert from 'sweetalert';
 	import router from '../router';
 	import App from '../App';
-	import Vue from 'vue';
 	import axios from 'axios';
-	import VueAxios from 'vue-axios';
 
 	export default {
 		components: {
@@ -48,33 +47,34 @@
 		},
 		data() {
 			return {
-				url: App.data().url,
-				stored: null
+				characterGet: App.data().url.character_get,
+				characterUpdate: App.data().url.character_update,
+				characterPost: App.data().url.character_post,
+				characterDelete: App.data().url.character_delete,
+				stored: []
 			}
 		},
 		mounted() {
 			var self = this;
 
-			window.onload = (function(){
-				getData();
-			})();
+			this.getData();
 
-			function getData() {
-				Vue.axios.get(self.url.character).then((response) => {
-				  self.stored = response.data;
-				  console.log('DATA CHAR: ', self.stored)
-				});
+			// function getData() {
+			// 	Vue.axios.get(self.characterGet).then((response) => {
+			// 	  self.stored = response.data;
+			// 	  console.log('DATA CHAR: ', self.stored)
+			// 	});
 
-				setTimeout(function renderData() {
-					if(self.stored.length>0){
-						console.log('DATA CHAR ONO', self.stored)
-					}else{
-						// backup
-						console.log('DATA CHAR RAONO')
-						self.stored = ['Responsibility', 'Communicative', 'Creative', 'Inovative'];
-					}
-				}, 300);
-			}
+			// 	setTimeout(function renderData() {
+			// 		if(self.stored.length>0){
+			// 			console.log('DATA CHAR ONO', self.stored)
+			// 		}else{
+			// 			// backup
+			// 			console.log('DATA CHAR RAONO')
+			// 			self.stored = ['Responsibility', 'Communicative', 'Creative', 'Inovative'];
+			// 		}
+			// 	}, 300);
+			// }
 
 			// INITIAL RENDER
 
@@ -88,84 +88,106 @@
 
 			// EDIT CHAR
 			this.$root.$on('edited-char', function(dataChar) {
-				console.log('EDITED in Char: ', dataChar);
-				// console.log('stored: ', self.stored);
-
-				// PUT 
-				var id = dataChar.id;
-				var url = self.url.character + '/update/' + id;
-				var data = {
-					id: id,
-					name: dataChar.name,
-					description: dataChar.description
-				};
-
-				// App.methods.putData(url, data);
-				axios.put(url).then(res => {
-					if(res.status == 200) {
-						self.render();
-					}
-				}).catch(e => {
-					alert('Data Yang Masukkan Sudah Tersedia');
-					self.render()
-				})
+				self.updateChar(dataChar);
+				// console.log('EDITED in Char: ', dataChar);
+				// var id = dataChar.id;
+				// var data = {
+				// 	id: id,
+				// 	name: dataChar.name,
+				// 	description: dataChar.description
+				// };
+				// console.log(self.characterUpdate + id)
+				// axios.put(self.characterUpdate + id, data).then(res => {
+				// 	if(res.status == 200) {
+				// 		this.render();
+				// 		sweetalert('Berhasil Edit Karakter', 'success')
+				// 	}
+				// }).catch(e => {
+				// 	alert('Data Yang Masukkan Sudah Tersedia');
+				// 	self.render()
+				// })
 
 			});
 		},
 		methods: {
+			updateChar(data) {
+				console.log('data cart', data)
+
+				var sendData = {
+					id: data.id,
+					name: data.name,
+					description: data.description
+				};
+
+				console.log('yang mau dikitm', sendData);
+
+				axios.put(this.characterUpdate + data.id, sendData).then(res => {
+					if(res.status == 200) {
+						this.getData()
+						sweetalert('Berhasil Edit Karakter', 'success')
+					}
+				}).catch(e => {
+					alert('Data Yang Masukkan Sudah Tersedia');
+					this.getData()
+				})
+			},
+			getData() {
+				this.stored = []
+				axios.get(this.characterGet).then((response) => {
+				  response.data.map(e => {
+				  	this.stored.push(e)
+				  })
+				  console.log('DATA CHAR: ', this.stored)
+				});
+			},
 			setGetRender(data, name) {
-				var self = this;
-				// SET
-				var url = this.url.character + '/create';
+				// var url = this.url.character + '/create';
 				var backend_data = {
 					name: data,
 					description: 'no description.'
 				};
-				// console.log(backend_data)
-				// App.methods.postData(url, backend_data);
-				axios.post(App.data().url.character, backend_data).then(res => {
+				axios.post(this.characterPost, backend_data).then(res => {
 					if(res.status == 200){
-						this.render();
-
+						sweetalert('Sukses Menambahkan Karakter', 'success');
+						this.getData();
+					}else {
+						sweetalert('Gagal Menambahkan Karakter. Silahkan coba lagi');
 					}
 				}).catch(e => {
-					alert('Data yang anda masukkan sudah tersedia');
-					this.render();
+					sweetalert('Data yang anda masukkan sudah tersedia');
+					this.getData();
 				})
 
 			},
-			editChar(char, key) {
-				var data = {char: char, key: key}
+			editChar(char) {
+				var data= {
+					char: char
+					// key:key
+				}
+				console.log('data di emit edit-char', data)
 				this.$root.$emit('edit-char', data);
 			},
 			deleteChar(char, key) {
-				var self = this;
-
-				// console.log('DELETE THIS: ', char, key);
-
-				var url = this.url.character + '/delete/' + char.id;
-				// App.methods.deleteData(url);
-				axios.delete(url).then(res => {
+				console.log("CHAR", char)
+				axios.delete(this.characterDelete + char.id).then(res => {
 					if(res.status == 200){
-						this.render();
+						sweetalert('Berhasil Menghapus Karakter', 'success');
+						this.getData();
+					}else {
+						sweetalert('Gagal Menghapus Karakter. Silahkan Coba Lagi');
 					}
 				}).catch( e => {
-					alert('Gagal Menghapus. Silahkan Coba Lagi');
-					this.render();
+					sweetalert('Gagal Menghapus Karakter. Silahkan Coba Lagi');
+					this.getData();
 				})
 
 			},
-			render(){
-				var self = this;
-				// RENDER
-				setTimeout(function(){
-					// RENDER
-					Vue.axios.get(self.url.character).then((response) => {
-					  	self.stored = [];
-					  	self.stored = response.data;
-					});
-				}, 500);
-			}
+			// render(){
+			// 	axios.get(this.characterGet).then((response) => {
+			// 	  	// this.stored = [];
+			// 	  	this.stored = response.data;
+			// 	});
+			// }
 		}
 	}
 </script>

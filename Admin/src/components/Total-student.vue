@@ -32,50 +32,64 @@
 </template>
 
 <script>
-	import Vue from 'vue'
 	import App from '../App.vue'
 	import router from '../router.js'
 	import axios from 'axios'
-	import VueAxios from 'vue-axios'
-	Vue.use(VueAxios, axios);
 	export default {
-		name: 'totalStudent',
 		data() {
 			return {
 				graduateds: 0,
 				studyings: 0,
 				total: 0,
 				dataStudents: [],
-				url: App.data().url,
+				totalStudent: App.data().url.student_get,
 			}
 		},
 		mounted() {
-			var self = this;
+			// var self = this;
 
-			window.onload = (function(){
-				getData();
-			})();
+			// window.onload = (function(){
+			this.getData();
+			// })();
 
-			function getData() {
-				Vue.axios.get(self.url.student).then((response) => {
-				  self.dataStudents = response.data;
-				});
+			// function getData() {
+			// 	Vue.axios.get(self.url.student).then((response) => {
+			// 	  self.dataStudents = response.data;
+			// 	});
 
-				setTimeout(function countStudent() {
-					self.dataStudents.map(std => {
+			// 	setTimeout(function countStudent() {
+			// 		self.dataStudents.map(std => {
+			// 			if (std) {
+			// 				if (std.status == 'Graduated') {
+			// 					self.graduateds++;
+			// 				}
+			// 				if (std.status == 'Studying' || std.status == 'Studied') {
+			// 					self.studyings++;
+			// 				}
+			// 			}
+			// 		});
+			// 	self.total = self.dataStudents.length;
+			// 	}, 300);
+			// };
+
+		},
+		methods: {
+			getData(){
+				axios.get(this.totalStudent).then((response) => {
+					this.dataStudents = response.data;
+					this.dataStudents.map(std => {
 						if (std) {
 							if (std.status == 'Graduated') {
-								self.graduateds++;
+								this.graduateds++;
 							}
 							if (std.status == 'Studying' || std.status == 'Studied') {
-								self.studyings++;
+								this.studyings++;
 							}
 						}
 					});
-				self.total = self.dataStudents.length;
-				}, 300);
-			};
-
+				this.total = this.dataStudents.length;
+				});
+			}
 		}
 	}
 </script>

@@ -60,13 +60,13 @@
 
 			// Edit Char ----------------------------
 			this.$root.$on('edit-char', function(data) {
-				// console.log('EDIT CHAR: ',data)
+				console.log('EDIT CHAR: ',data)
 				self.page = 'editItem';
 				self.pageDetail = 'char';
 				self.isAdding = true;
 				// self.selectedMajor = data.major;
 				self.selectedItem = data.char;
-				self.selectedKey = data.key;
+				// self.selectedKey = data.key;
 
 				self.inputedItem = self.selectedItem.name;
 			});
@@ -114,8 +114,8 @@
 						id: this.selectedItem.id,
 						name: this.inputedItem, 
 						description: '',
-						key: this.selectedKey
 					}
+					console.log('KIRIMAN EMIT DARI PAGE ITEM', data);
 					target = 'edited-char';
 					this.selectedItem = true;
 					this.page = 'char';
