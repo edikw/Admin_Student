@@ -21,7 +21,7 @@
 
 				<tbody>
 					<template v-for="(student, key) in students">
-						<tr v-if="student">
+						<tr v-if="student" :key="key">
 							<td>{{key+1}}</td>
 							<td>{{student.name}}</td>
 							<td>{{student.gender}}</td>
@@ -113,8 +113,6 @@
 		mounted() {
 			var self = this;
 
-			console.log('[StudentList.vue MOUNTED]')
-
 			this.$root.$on('add-student', function(data){
 				self.postDataStudent(data);
 			})
@@ -132,23 +130,22 @@
 		methods: {
 			getDataStudent() {
 				axios.get(this.studentGet).then((response) => {
-				  this.students = response.data;
+					this.students = response.data;
 
 				});
 			},
 			getDataSkill(){
 				axios.get(this.skillGet).then((response) => {
-				  this.storedSkill = response.data;
+					this.storedSkill = response.data;
 				});
 			},
 			getDataChar(){
 				axios.get(this.characterGet).then((response) => {
-				  this.storedChar = response.data;
+					this.storedChar = response.data;
 				});
 			},
 			postDataStudent(data){
-				console.log('DATA DI TERIMA DAN DI KIRIM', data)
-				axios.post(this.studentPost, data.data).then(res => {
+				axios.post(this.studentPost, data).then(res => {
 					if(res.status == 200){
 						sweetalert('Sukses Menambahkan Student', 'success');
 						// this.render();
@@ -161,11 +158,9 @@
 				})
 			},
 			editDataStudent(data) {
-				console.log('DTAA YANG MAU NDI EDIT di fungsi edit student', data)
 				axios.put(this.studentUpdate + data.id, data).then(res => {
 					if(res.status == 200){
 						sweetalert('Sukses Edit Student', 'success');
-						// this.render();
 						this.getDataStudent();
 					}else {
 						sweetalert('Gagal Edit Student. Silahkan Coba Lagi');
@@ -180,184 +175,41 @@
 				axios.get(this.skillgetId + student.id ).then(res => {
 					this.selectedSkillset = res
 				});
-				// App.methods.getData(this.url.student + '/skill/' + student.id, function(res){
-				// 	self.selectedSkillset = res;
-				// })
 
 				// GET CHARSET
 				axios.get(this.charactergetId + student.id ).then(res => {
 					this.selectedCharset = res
 				});
-
-				// App.methods.getData(this.url.student + '/character/' + student.id, function(res){
-				// 	self.selectedCharset = res;
-				// });
 			},
-			editStudent(student, key) {
-				var self = this;
+			editStudent(student) {
 
 				this.isEditing = true;
-				console.clear();
-				console.log('[SELECTED STUDENT]: ', student)
-
-				// var skillOld;
-				// var skillNow;
-				// var loop;
 
 				// GET STUDENT DATA BARU
 				axios.get(this.studentGetId + student.id).then(res => {
 					this.studNew = res;
-					console.log("RESPONE GET STUD EDIT", res)
 					this.$root.$emit('show-edit-baru', this.studNew);
 					
 				})
 
-				// App.methods.getData(this.url.student + '/' + student.id, function(res){
-				// });
-
-				// GET STUDENT SKILLSET
-				// axios.get(this.skillgetId + student.id).then(res => {
-				// 	self.skillOld = res;
-					
-				// });
-
-				// // App.methods.getData(this.url.student + '/skill/' + student.id, function(res){
-				// // });
-
-				// // axios.get(this.)
-				// App.methods.getData(this.majorGetId + 'major/skill/' + student.major, function(res){
-				// 	self.skillNow = res;
-				// }); 
-
-				// setTimeout(function compareSkill() {
-				// 	// var self = this;
-				// 	if (self.skillNow.length > self.skillOld.skills.length) {
-				// 		student.skills = []
-				// 		var num = 0;
-				// 		for (var i = 0; i < self.skillOld.skills.length; i++) {
-				// 			num = num + 1;
-				// 			// student.skills.push({
-				// 			// 	id: self.skillOld[i].skill_id,
-				// 			// 	name: self.skillOld[i].name,
-				// 			// 	score: self.skillOld[i].score
-				// 			// })
-				// 		}
-				// 		console.log('num: ', num)
-				// 		for (var j = 0; j < self.skillNow.length; j++) {
-				// 			if (j > num) {
-				// 				student.skills.push({
-				// 					id: self.skillNow[j].id,
-				// 					name: self.skillNow[j].name,
-				// 					major_id: self.skillNow[j].major_id,
-				// 					score: 0
-				// 				})
-				// 			}
-				// 		}
-				// 	} else {
-				// 		student.skills = []
-				// 		for (var i = 0; i < self.skillOld.skills.length; i++) {
-				// 			student.skills.push({
-				// 				id: self.skillOld.skills[i].skill_id,
-				// 				name: self.skillOld.skills[i].name,
-				// 				score: self.skillOld.skills[i].score
-				// 			})
-				// 		}
-				// 	}
-				// }, 300);
-
-
-
-				// ADDING SKILL SET 
-				// console.log('SKILL BERDASAR MAJOR after: ', this.skillNow)
-				// if (self.skillNow.skill.length > self.skillOld.length) {
-				// 	student.skills = []
-				// 	for (var i = 0; i < self.skillOld.length; i++) {
-				// 		student.skills.push({
-				// 			id: self.skillOld[i].skill_id,
-				// 			score: self.skillOld[i].score
-				// 		})
-				// 	}
-				// 	for (var j = 0; j < self.skillNow.skill.length; j++) {
-				// 		student.skills.push({
-				// 			id: self.skillNow.skill[j].id,
-				// 			score: 0
-				// 		})
-				// 	}
-				// } else {
-				// 	student.skills = []
-				// 	for (var i = 0; i < self.skillOld.length; i++) {
-				// 		student.skills.push({
-				// 			id: self.skillOld[i].skill_id,
-				// 			score: self.skillOld[i].score
-				// 		})
-				// 	}
-				// }
-
-				// student.skills = []
-				// for (var i = 0; i < res.length; i++) {
-				// 	student.skills.push({
-				// 		id: res[i].skill_id,
-				// 		score: res[i].score
-				// 	})
-				// }
-
-
-				// disini get data student char, tidak get dari characters
-				// GET STUDENT CHARSET
-				// App.methods.getData(this.url.student + '/character/' + student.id, function(res){
-					// student.characters = []
-					// for (var i = 0; i < res.length; i++) {
-					// 	student.characters.push({
-					// 		id: res[i].char_id,
-					// 		name: res[i].name,
-					// 		score: res[i].score
-					// 	})
-					// }
-				// })
-
-				// App.methods.getData(this.url.student + '/skill/' + student.id, function(res){
-					
-					// student.skill = []
-					// for (var i = 0; i < res.length; i++) {
-					// 	student.skill.push({
-					// 		id: res[i].skill_id,
-					// 		name: res[i].name,
-					// 		score: res[i].score
-					// 	})
-					// }
-				// })
-
-				// KIRIM DATA KE FORM 
-				// this.$root.$emit('show-edit', student);
 
 				// Make select major disabled 
 				var isDisabled = true;
-				// this.$root.$emit('select-disabled', isDisabled);
+				this.$root.$emit('select-disabled', isDisabled);
 
 				//scrolling page
 				window.scrollTo(0, 100);
 			},
-			deleteStudent(student, key) {
-				// var url = this.url.student + '/delete/' + student.id;
+			deleteStudent(student) {
 				axios.delete(this.studentDelete + student.id).then(res => {
 					if (res.status == 200){
 						sweetalert('Deleted!', 'Student has been deleted', 'success');
-						// this.render();
 						this.getDataStudent();
 
 					}
 				})
 
-			},
-			// render(){
-			// 	// self.students = [];
-			// 	setTimeout(function(){
-
-			// 		App.methods.getData(self.url.student, function(res){
-			// 			self.students = res;
-			// 		});
-			// 	}, 500);
-			// }
+			}
 		},
 		filters: {
 			major(val) {
@@ -370,13 +222,11 @@
 					res = 'Compositor';
 				} else if (val == 4) {
 					res = 'Programmer';
-				} else {
-					
 				}
+
 				return res;
 			},
 			skill(val) {
-				console.log('translate skill ', val)
 				for (var i = 0; i < router.app.skill.length; i++) {
 					var s = router.app.skill[i]
 					if(s.id == val){
@@ -385,7 +235,6 @@
 				}
 			},
 			char(val) {
-				console.log('translate characters ', val)
 				for (var i = 0; i < router.app.character.length; i++) {
 					var c = router.app.character[i]
 					if(c.id == val){
@@ -399,11 +248,9 @@
 				var self = this;
 				if(val){
 					var result = [];
-						console.log(val, self.students)
 						for (var i = 0; i < self.students.length; i++) {
 							var name = self.students[i].name.toLowerCase();
 							if(name.indexOf(val) > -1){
-								console.log(name)
 								result.push(self.students[i])
 							}
 						}

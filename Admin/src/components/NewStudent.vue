@@ -14,7 +14,8 @@
 									<img v-bind:src="student.profile_picture" @click="openUpload">
 								</div>
 								<input type="file" name="file" id="profileIMG" class="inputfile" @change="onFilePicked">
-								<button @click="openUpload">Choose file</button>
+								<button @click="openUpload" v-if="!proses">Choose file</button>
+								<button v-if="proses">Please wait...</button>
 							</div>
 
 							<div class="pic-profile" v-if="edit">
@@ -22,7 +23,8 @@
 									<img v-bind:src="student.profile_picture" @click="openUpload">
 								</div>
 								<input type="file" name="file" id="profileIMG" class="inputfile" @change="onFilePickedEdit">
-								<button @click="openUpload">Choose file</button>
+								<button v-if="!proses" @click="openUpload">Choose file</button>
+								<button v-if="proses">Please wait...</button>
 							</div>
 
 							<div class="field">
@@ -75,7 +77,7 @@
 								<p class="warning" v-show="nullStatus">* Status field must be filled</p>
 							</div>
 							<div class="major-gen-container">
-								<div class="major-wrapper">
+								<div class="major-wrapper" >
 									<p><img src="../assets/logo/major.png" style="margin-right:10px">Major</p>
 									<select id="major" class="major" v-model="selectedMajor">
 										<option>3D Animator</option>
@@ -106,7 +108,8 @@
 						<div class="container">
 							<span>SKILL</span>
 							<!-- SKILL LOOPING -->
-							<div class="skill-container" v-for="(skill,key) in student.skills">
+							<p class="charValue" v-if="student.skills.length > 0">* Value max 10</p>
+							<div class="skill-container" v-for="(skill,i) in student.skills" :key="i">
 								<div class="skill">
 									<ul>
 										<li>
@@ -115,7 +118,7 @@
 									</ul>
 								</div>
 								<div class="edit">
-									<input type="number" :key="key" v-model="skill.score" placeholder="0">
+									<input type="number" max="10" min="0" :key="key" v-model="skill.score" placeholder="0">
 								</div>
 							</div>
 
@@ -131,17 +134,17 @@
 
 							<span>CHARACTER</span>
 							<!-- CHARACTER LOOPING -->
-							<div class="skill-container" v-if="student.characters" v-for="char in student.characters">
+							<p class="charValue" v-if="student.characters.length > 0">* Value max 10</p>
+							<div class="skill-container" v-if="student" v-for="(char, j) in student.characters" :key="j">
 								<div class="skill">
 									<ul>
 										<li><span></span>{{char.name}}</li>
 									</ul>
 								</div>
 								<div class="edit">
-									<input type="number" v-model="char.score" placeholder="0">
+									<input type="number" max="10" min="0" v-model="char.score" placeholder="0">
 								</div>
 							</div>
-
 						</div>
 					</div>
 				</div>
@@ -150,7 +153,8 @@
 					<div class="edit-skill">
 						<div class="container">
 							<span>SKILL</span>
-							<div class="skill-container" v-for="(skill,key) in student.skills">
+
+							<div class="skill-container" v-for="(skill,key) in student.skills" :key="skill.name">
 								<div class="skill">
 									<ul>
 										<li>
@@ -159,10 +163,9 @@
 									</ul>
 								</div>
 								<div class="edit">
-									<input type="number" :key="key" v-model="skill.score" placeholder="0">
+									<input type="number" max="10" min="0" :key="key" v-model="skill.score" placeholder="0">
 								</div>
 							</div>
-
 							<div class="skill-container" v-if="stud.skills.length < 0">
 								<div class="skill">
 									<ul>
@@ -174,14 +177,15 @@
 							</div>
 
 							<span>CHARACTER</span>
-							<div class="skill-container" v-for="char in student.characters">
+							<p class="charValue" v-if="student.characters.length > 0">* Value max 10</p>
+							<div class="skill-container" v-for="(char, i) in student.characters" :key="i">
 								<div class="skill">
 									<ul>
 										<li><span></span>{{char.name}}</li>
 									</ul>
 								</div>
 								<div class="edit">
-									<input type="number" placeholder="0" v-model="char.score">
+									<input type="number" min="0" max="10" placeholder="0" v-model="char.score">
 								</div>
 							</div>
 
@@ -201,8 +205,6 @@
 </template>
 
 <script>
-	import router from '../router.js'
-	import Vue from 'vue'
 	import axios from 'axios'
 	import App from '../App'
 
@@ -217,7 +219,7 @@
 		status: null,
 		major: null,
 		generations: null,
-		skill: [],
+		skills: [],
 		characters: []
 	};
 
@@ -270,17 +272,15 @@
 
 				stud: JSON.parse(JSON.stringify(studentBaru)),
 				catchEmit: false,
+				proses: false
 			}
 		},
 		mounted() {
 			var self = this;
 
-			console.log("[NewStudent.vue MOUNTED]")
-
 			this.$root.$on('show-edit', function(data) {
 				if(self.catchEmit === false){
 					self.catchEmit = true;
-					console.log('EDIT THIS: ', data);
 					self.student.skills = []
 					self.student.characters = []
 					setTimeout(function(){
@@ -303,8 +303,6 @@
 
 			// GET DATA DARI EDIT BARU 
 			this.$root.$on('show-edit-baru', function(data) {
-				console.log('STUD DATA BARU: ', data)
-
 				self.student.address = data.data.address;
 				self.student.birthday = data.data.birthday;
 				self.student.email = data.data.email;
@@ -317,33 +315,31 @@
 				self.student.skills = data.data.skills;
 				self.student.characters = data.data.characters;
 				self.student.profile_picture = data.data.profile_picture;
-
-				console.log("EMIT DATA SUDAH DIMASUKKAN", self.student)
-
-
 				self.edit = true;
-			})
+			});
 
-			window.onload = (function(){
-				getDataSkill();
-			})();
+			this.$root.$on('select-disabled', function(data) {
+				self.isSelectDisabled = data;
+				if (self.isSelectDisabled == true) {
+					var selectBtn = document.querySelector('#major');
+					selectBtn.disabled = !selectBtn.disabled;
+				}
+			});
+
+			getDataSkill();
 
 			// GET DATA ABOUT FROM BACKEND 
 			function getDataSkill() {
 				axios.get(self.skillGet).then((response) => {
-				  self.storedSkill = response.data;
-				  console.log('[DATA SKILL]: ', self.storedSkill)
+					self.storedSkill = response.data;
 				});
 				getDataChar();
-			};
+			}
 			// GET CHARS
-			// char.name ada 
 			function getDataChar() {
 				axios.get(self.characterGet).then((response) => {
-				  self.storedChar = response.data;
-				  console.log('[DATA CHAR]: ', self.storedChar)
+					self.storedChar = response.data;
 					if(self.storedChar.length > 0){
-						console.log('DI FUNGSI ADD CHAR SHET', self.storedChar)
 						for (var i = 0; i < self.storedChar.length; i++) {
 							var char = self.storedChar[i];
 							self.student.characters.push({
@@ -362,94 +358,22 @@
 				if(self.storedChar.length > 0){
 					self.storedChar = self.charName(self.storedChar);
 				}
-
-
-				// setTimeout(function addCharSet() {
-				// 	console.log('[CHARACTER SORTED]', self.student.characters)
-				// }, 1000);
-
-				// setTimeout(function setSkill() {
-				// }, 1000);
-
-				// setTimeout(function setChar() {
-				// }, 1000);
-			};
-
-			// ADD CHARACTERS TO STUDENT
-
-			// select disabled detector 
-			this.$root.$on('select-disabled', function(data) {
-				this.isSelectDisabled = data;
-				console.log('disabled button after: ', this.isSelectDisabled)
-				if (this.isSelectDisabled == true) {
-					// failed to get element 
-					var selectBtn = document.querySelector('#major');
-					selectBtn.disabled = !selectBtn.disabled;
-				}
-			});
+			}
 		},
 		methods: {
 			editStudent(){
 
-				const name = this.student.name[0].toUpperCase()+this.student.name.slice(1);
-				const gender = this.student.gender[0].toUpperCase()+this.student.gender.slice(1);
-				const address = this.student.address[0].toUpperCase()+this.student.address.slice(1);
-				// PUT STUDENT HERE 
-				// var major_id = null;
-				// if (this.selectedMajor == '3D Modeller') {
-				// 	major_id = 1;
-				// 	console.log('Major ID: ', major_id);
-				// } else if (this.selectedMajor == '3D Animator') {
-				// 	major_id = 2;
-				// } else if (this.selectedMajor == 'Compossitor') {
-				// 	major_id = 3;
-				// } else if (this.selectedMajor == 'Programmer') {
-				// 	major_id = 4;
-				// } else {
-				// 	major_id = 0;
-				// }
-				// this.selectedMajorId = major_id;
-
-				var data = {
-					id: this.student.id,
-					name: name,
-					gender: gender,
-					birthday: this.student.birthday,
-					address: address,
-					email: this.student.email,
-					status: this.student.status,
-					major: this.selectedMajorId,
-					generations: this.student.generations,
-					skill: this.student.skills,
-					characters: this.student.characters,
-					profile_picture: this.student.profile_picture
-				}
-				for (var i = 0; i < this.student.skills.length; i++) {
-					var skill = this.student.skills[i]
-					data.skill.push({
-						id: skill.id,
-						description: '',
-						category:'',
-						skill_id: skill.id,
-						student_id: this.student.id,
-						name: skill.name,
-						score: parseInt(skill.score)
-					})
-				}
-
-				console.log('SKILLL STUDENT di edit student', this.student.skills)
+				// const name = this.student.name[0].toUpperCase()+this.student.name.slice(1);
+				// const gender = this.student.gender[0].toUpperCase()+this.student.gender.slice(1);
+				// const address = this.student.address[0].toUpperCase()+this.student.address.slice(1);
 				
+				this.$root.$emit('edit-student', this.student);
 
-					console.log('EDIT THIS: ', this.student)
-					console.log('data yang mau di emit', data)
-					this.$root.$emit('edit-student', this.student);
+				// ngembalikin disabled 
+					var selectBtn = document.querySelector('#major');
+					selectBtn.disabled = !selectBtn.disabled;
 
-					// ngembalikin disabled 
-					// var selectBtn = document.querySelector('#major');
-					// console.log('JANCOKK2: ', this.isSelectDisabled, selectBtn)
-					// selectBtn.disabled = !selectBtn.disabled;
-
-					this.reset();
+				this.reset();
 			},
 
 			saveStudent(){
@@ -483,15 +407,12 @@
 					this.student.major = this.selectedMajorId
 
 					// di backend format datanya skill, bukan skills
-					this.student.skill = this.student.skills
+					this.student.skills = this.student.skills
 					this.student.characters = this.student.characters
 					this.student.profile_picture = this.student.profile_picture
-
-					console.log('POST THIS YNG DIKIRIM ======>>>>: ', this.student)
-					this.$root.$emit('add-student', {
-						// url: this.studentPost,
-						data: this.student
-					});
+					this.student.status = this.student.status
+					this.student.birthday = this.student.birthday
+					this.$root.$emit('add-student', this.student);
 
 					this.reset();
 					this.nullName = false; 
@@ -507,8 +428,6 @@
 
 			},
 			skillName(val){
-				console.log("isi dari skillName", val)
-				console.log('isi dari skillName 2', this.storedSkill);
 				for (var i = 0; i < this.storedSkill.length; i++) {
 					var skill = this.storedSkill[i]
 					if(val == skill.id){
@@ -528,8 +447,7 @@
 				document.getElementById("profileIMG").click()
 			},
 			onFilePicked(event) {
-				console.log(" INI DI FUNGSI ADD")
-
+				this.proses = true;
 				var self = this
 
 				const image = event.target.files[0];
@@ -543,18 +461,16 @@
 				request.onreadystatechange = function () {
 					if(request.readyState === 4 && request.status === 200) {
 						var res = JSON.parse(request.responseText);
-						// self.user.urlImage = res.url
-						console.log('res', res)
 						res.uploaded_image.map(data => {
 							self.student.profile_picture = data.size.small;
-							
 						})
+						self.proses = false;
 					}
 				}
 
 			},
 			onFilePickedEdit(event){
-				console.log("INI DI FUNGSI EDIT")
+				this.proses = true;
 				var self = this
 
 				const image = event.target.files[0];
@@ -569,11 +485,9 @@
 					if(request.readyState === 4 && request.status === 200) {
 						var res = JSON.parse(request.responseText);
 						res.uploaded_image.map(data => {
-							self.student.profile_picture = data.size.small;
-							
+							self.student.profile_picture = data.size.small; 
 						})
-						// self.user.urlImage = res.url
-						console.log('res', res)
+						self.proses = false;
 					}
 				}
 			},
@@ -589,14 +503,10 @@
 		},
 		watch: {
 			selectedMajor(val) {
-				var self = this;
-				console.log('isi dari selectedMajor di watch', val)
-
 				// get major & major id
 				var major_id = null;
 				if (val == '3D Modeller') {
 					major_id = 1;
-					console.log('Major ID: ', major_id);
 				} else if (val == '3D Animator') {
 					major_id = 2;
 				} else if (val == 'Compossitor') {
@@ -608,49 +518,40 @@
 				}
 				this.selectedMajorId = major_id;
 
-				console.log('MAJOR IDDDDDD', this.selectedMajorId)
-
 				// SEARCH SKILL 
 				if(!this.student.created_at){
 					this.student.skills = []
-					console.log('masukk selected major suuu')
-					console.log('di fungsi selected major', this.storedSkill);
 					for (var i=0; i < this.storedSkill.length; i++) {
-						console.log('masuk selected major di for')
 						var skill = this.storedSkill[i]
 						if (major_id == skill.major_id) {
 							this.student.skills.push({
 								id: skill.id,
+								description: '',
+								major_id: this.selectedMajorId,
 								name: skill.name,
+								skill_id: skill.id,
+								student_id: this.student.id,
 								score: 0
 							});
 						}
 					}
 				}
-
-				console.log('AFTER SELECTING MAJOR:', this.student)
 			},
 			isSelectDisabled(val) {
 				if (val === true) {
 					var selectBtn = document.querySelector(".major-wrapper select");
-					// console.log('JANCOKKK: ', this.isSelectDisabled)
-					// selectBtn.disabled;
+					selectBtn.disabled;
 				}
 			}
-		},
-		// filters: {
-		// 	profilePicture(val){
-		// 		return App.data().url.root + val;
-		// 	}
-		// }
+		}
 	};
 </script>
 
 <style scoped>
 	* {
-	  -webkit-box-sizing: border-box;
-	  -moz-box-sizing: border-box;
-	  box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
 	}
 
 
@@ -771,8 +672,8 @@
 		height: 25px;
 		position: absolute;
 		margin: 0;
-	    opacity: 0;
-	    cursor: pointer;
+		opacity: 0;
+		cursor: pointer;
 	}
 
 	.profile .profile-desc .edit-bio .gender .checkbox-container {
@@ -936,7 +837,7 @@
 	}
 	.student-all .profile .table-result td {
 		border-right: 1px solid #8e8e8e;
-		font-size: 10pt;		
+		font-size: 10pt;        
 	}
 	.student-all .profile .table-result th {
 		border: 1px solid #8e8e8e;
@@ -954,5 +855,10 @@
 		color: red;
 		padding: 0;
 		font-size: 12px;
+	}
+	.charValue {
+		margin-bottom: 0;
+		font-size: 12px;
+		padding: 0;
 	}
 </style>

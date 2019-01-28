@@ -16,9 +16,9 @@
 						</thead>
 					<tbody v-if="stored">
 
-						<tr v-for="(char, key) in stored">
+						<tr v-for="(char, key) in stored" :key="key">
 							<td>{{key+1}}</td>
-							<td class="title">{{char.name}} | {{char.id}}</td>
+							<td class="title">{{char.name}}</td>
 							<td><img src="../assets/logo/edit.png" v-on:click="editChar(char, key)"><img src="../assets/logo/delete.png" v-on:click="deleteChar(char, key)"></td>
 						</tr>
 						<tr>
@@ -37,7 +37,6 @@
 <script>
 	import AddCharacter from '../components/AddItem';
 	import sweetalert from 'sweetalert';
-	import router from '../router';
 	import App from '../App';
 	import axios from 'axios';
 
@@ -59,25 +58,6 @@
 
 			this.getData();
 
-			// function getData() {
-			// 	Vue.axios.get(self.characterGet).then((response) => {
-			// 	  self.stored = response.data;
-			// 	  console.log('DATA CHAR: ', self.stored)
-			// 	});
-
-			// 	setTimeout(function renderData() {
-			// 		if(self.stored.length>0){
-			// 			console.log('DATA CHAR ONO', self.stored)
-			// 		}else{
-			// 			// backup
-			// 			console.log('DATA CHAR RAONO')
-			// 			self.stored = ['Responsibility', 'Communicative', 'Creative', 'Inovative'];
-			// 		}
-			// 	}, 300);
-			// }
-
-			// INITIAL RENDER
-
 			// MOUNTED CHAR
 			this.$root.$emit('char-mounted', {isAdding: false, selectedItem: true});
 
@@ -89,38 +69,16 @@
 			// EDIT CHAR
 			this.$root.$on('edited-char', function(dataChar) {
 				self.updateChar(dataChar);
-				// console.log('EDITED in Char: ', dataChar);
-				// var id = dataChar.id;
-				// var data = {
-				// 	id: id,
-				// 	name: dataChar.name,
-				// 	description: dataChar.description
-				// };
-				// console.log(self.characterUpdate + id)
-				// axios.put(self.characterUpdate + id, data).then(res => {
-				// 	if(res.status == 200) {
-				// 		this.render();
-				// 		sweetalert('Berhasil Edit Karakter', 'success')
-				// 	}
-				// }).catch(e => {
-				// 	alert('Data Yang Masukkan Sudah Tersedia');
-				// 	self.render()
-				// })
 
 			});
 		},
 		methods: {
 			updateChar(data) {
-				console.log('data cart', data)
-
 				var sendData = {
 					id: data.id,
 					name: data.name,
 					description: data.description
 				};
-
-				console.log('yang mau dikitm', sendData);
-
 				axios.put(this.characterUpdate + data.id, sendData).then(res => {
 					if(res.status == 200) {
 						this.getData()
@@ -134,14 +92,12 @@
 			getData() {
 				this.stored = []
 				axios.get(this.characterGet).then((response) => {
-				  response.data.map(e => {
-				  	this.stored.push(e)
-				  })
-				  console.log('DATA CHAR: ', this.stored)
+					response.data.map(e => {
+						this.stored.push(e)
+					})
 				});
 			},
-			setGetRender(data, name) {
-				// var url = this.url.character + '/create';
+			setGetRender(data) {
 				var backend_data = {
 					name: data,
 					description: 'no description.'
@@ -162,13 +118,10 @@
 			editChar(char) {
 				var data= {
 					char: char
-					// key:key
 				}
-				console.log('data di emit edit-char', data)
 				this.$root.$emit('edit-char', data);
 			},
-			deleteChar(char, key) {
-				console.log("CHAR", char)
+			deleteChar(char) {
 				axios.delete(this.characterDelete + char.id).then(res => {
 					if(res.status == 200){
 						sweetalert('Berhasil Menghapus Karakter', 'success');
@@ -178,6 +131,7 @@
 					}
 				}).catch( e => {
 					sweetalert('Gagal Menghapus Karakter. Silahkan Coba Lagi');
+
 					this.getData();
 				})
 
@@ -194,9 +148,9 @@
 
 <style scoped>
 	* {
-	  -webkit-box-sizing: border-box;
-	  -moz-box-sizing: border-box;
-	  box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
 	}
 	.character {
 		padding-top: 2rem;
